@@ -1,0 +1,4 @@
+{ "appId": "com.cloudscad.app", "productName": "Clouds CAD", "directories": { "output": "dist-portable" },
+  "files": ["main.js", "preload.js", "cura-worker.js", "app.html", "icon.png", "package.json"],
+  "win": { "target": [{ "target": "portable", "arch": ["x64"] }], "icon": "icon.ico", "signAndEditExecutable": false },
+  "portable": { "artifactName": "CloudsCAD.exe" }, "electronDownload": {} }

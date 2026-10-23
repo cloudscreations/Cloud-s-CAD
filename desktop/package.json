@@ -1,0 +1,1 @@
+{"name":"clouds-cad","version":"1.0.0","description":"Cloud's CAD - free hot-wire CAD/CAM","main":"main.js","license":"GPL-3.0-or-later","author":"Eric Cloud","devDependencies":{"@electron/packager":"^20.3.0","electron":"^45.0.0","electron-builder":"^26.15.3"},"dependencies":{"cura-wasm":"^1.5.2","cura-wasm-definitions":"^1.5.1"}}

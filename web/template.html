@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Cloud's CAD"><meta name="theme-color" content="#0f131a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%225%22%20fill%3D%22%230a0d12%22/%3E%3Cpath%20d%3D%22M7%2014.5a3.5%203.5%200%200%201%20.4-7%205%205%200%200%201%209.5%201.3A3%203%200%200%201%2017%2014.5Z%22%20stroke%3D%22%23e9edf3%22%20stroke-width%3D%221.5%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M7.59%2C18.36L8.30%2C18.49L8.22%2C19.29L7.50%2C19.27L7.23%2C19.82L7.69%2C20.37L7.12%2C20.94L6.57%2C20.46L6.02%2C20.71L6.02%2C21.43L5.21%2C21.49L5.10%2C20.78L4.51%2C20.61L4.05%2C21.17L3.40%2C20.70L3.77%2C20.08L3.43%2C19.57L2.72%2C19.70L2.52%2C18.92L3.20%2C18.69L3.26%2C18.08L2.64%2C17.72L2.99%2C16.99L3.66%2C17.25L4.10%2C16.83L3.85%2C16.15L4.59%2C15.82L4.93%2C16.45L5.54%2C16.40L5.79%2C15.73L6.57%2C15.95L6.42%2C16.65L6.92%2C17.01L7.55%2C16.65L8.00%2C17.32L7.44%2C17.77ZM6.30%2C18.60A0.9%2C0.9%200%201%200%204.50%2C18.60A0.9%2C0.9%200%201%200%206.30%2C18.60Z%22%20fill%3D%22%23f5a524%22%20fill-rule%3D%22evenodd%22%20transform%3D%22translate%280%2C.9%29%22/%3E%3Cpath%20d%3D%22M14.27%2C18.70L14.95%2C19.15L14.55%2C19.87L13.81%2C19.52L13.35%2C19.94L13.64%2C20.71L12.88%2C21.05L12.49%2C20.33L11.87%2C20.40L11.65%2C21.19L10.84%2C21.03L10.95%2C20.21L10.41%2C19.91L9.77%2C20.42L9.21%2C19.81L9.77%2C19.22L9.51%2C18.65L8.69%2C18.68L8.60%2C17.86L9.41%2C17.71L9.53%2C17.10L8.85%2C16.65L9.25%2C15.93L9.99%2C16.28L10.45%2C15.86L10.16%2C15.09L10.92%2C14.75L11.31%2C15.47L11.93%2C15.40L12.15%2C14.61L12.96%2C14.77L12.85%2C15.59L13.39%2C15.89L14.03%2C15.38L14.59%2C15.99L14.03%2C16.58L14.29%2C17.15L15.11%2C17.12L15.20%2C17.94L14.39%2C18.09ZM13.00%2C17.90A1.1%2C1.1%200%201%200%2010.80%2C17.90A1.1%2C1.1%200%201%200%2013.00%2C17.90Z%22%20fill%3D%22%23f5a524%22%20fill-rule%3D%22evenodd%22%20transform%3D%22translate%280%2C.9%29%22/%3E%3Cpath%20d%3D%22M20.64%2C19.12L21.26%2C19.48L20.91%2C20.21L20.24%2C19.95L19.80%2C20.37L20.05%2C21.05L19.31%2C21.38L18.97%2C20.75L18.36%2C20.80L18.11%2C21.47L17.33%2C21.25L17.48%2C20.55L16.98%2C20.19L16.35%2C20.55L15.90%2C19.88L16.46%2C19.43L16.31%2C18.84L15.60%2C18.71L15.68%2C17.91L16.40%2C17.93L16.67%2C17.38L16.21%2C16.83L16.78%2C16.26L17.33%2C16.74L17.88%2C16.49L17.88%2C15.77L18.69%2C15.71L18.80%2C16.42L19.39%2C16.59L19.85%2C16.03L20.50%2C16.50L20.13%2C17.12L20.47%2C17.63L21.18%2C17.50L21.38%2C18.28L20.70%2C18.51ZM19.40%2C18.60A0.9%2C0.9%200%201%200%2017.60%2C18.60A0.9%2C0.9%200%201%200%2019.40%2C18.60Z%22%20fill%3D%22%23f5a524%22%20fill-rule%3D%22evenodd%22%20transform%3D%22translate%280%2C.9%29%22/%3E%3C/svg%3E">
+<title>Cloud's CAD</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0c0f14; --panel: #141922; --panel2: #1a212c; --ink: #e9edf3; --muted: #8e9aab; --line: #2a3342;
+    --accent: #f5a524; --accent-ink: #1b1204; --accent-soft: rgba(245,165,36,.14);
+    --warn-bg: #3a2c0e; --warn-ink: #ffd58a; --err-bg: #3f1a1a; --err-ink: #ffb3b3; --info-bg: #14263b; --info-ink: #a9cdf5; --code-bg: #0e1218;
+    --cv-bg: #0f131a; --cv-dot: #3a475c; --cv-dotmajor: #6b7d99; --cv-axis: #34425a; --cv-ent: #dfe7f3; --cv-hover: #6cb4ff; --cv-sel: #f5a524; --cv-bar: rgba(12,15,20,.9); --cv-lbl: #e9edf3; --cv-lblbg: #0f131a;
+  }
+  :root[data-theme=light] {
+    color-scheme: light;
+    --bg: #f4f5f8; --panel: #ffffff; --panel2: #f0f2f6; --ink: #1c2027; --muted: #5d6573; --line: #d9dde3;
+    --accent: #d98a00; --accent-ink: #ffffff; --accent-soft: rgba(217,138,0,.12);
+    --warn-bg: #fff4d6; --warn-ink: #6b4b00; --err-bg: #fde2e2; --err-ink: #8a1111; --info-bg: #e6f0ff; --info-ink: #17407e; --code-bg: #f0f2f5;
+    --cv-bg: #ffffff; --cv-dot: #b4bccb; --cv-dotmajor: #7a869b; --cv-axis: #b8c0cc; --cv-ent: #1d3557; --cv-hover: #1f6feb; --cv-sel: #e76f51; --cv-bar: rgba(255,255,255,.92); --cv-lbl: #1c2027; --cv-lblbg: #fff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  header { padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--panel); display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+  header h1 { margin: 0; font-size: 20px; }
+  header span { color: var(--muted); font-size: 13px; }
+  main { display: grid; grid-template-columns: 330px 1fr; gap: 16px; padding: 16px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
+  #drop { border: 2px dashed var(--line); border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; }
+  #drop.over { border-color: var(--accent); background: var(--info-bg); }
+  #drop b { display: block; margin-bottom: 4px; }
+  #fileName { color: var(--muted); font-size: 13px; word-break: break-all; }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 3px; }
+  input[type=number], input[type=text], select, textarea { width: 100%; padding: 7px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; }
+  textarea { font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .check { display: flex; gap: 8px; align-items: center; margin: 8px 0 0; color: var(--ink); font-size: 14px; }
+  .check input { width: auto; }
+  details { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 8px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+  .hint { color: var(--muted); font-size: 12.5px; margin: 4px 0 0; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  button { padding: 9px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); font: inherit; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  body:not([data-kind=dxf]) .dxfOnly, body[data-kind=dxf] .tapOnly { display: none; }
+  .msg { padding: 9px 11px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; }
+  .msg.err { background: var(--err-bg); color: var(--err-ink); font-weight: 600; }
+  .msg.warn { background: var(--warn-bg); color: var(--warn-ink); }
+  .msg.info { background: var(--info-bg); color: var(--info-ink); }
+  #stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 12px; }
+  #stats div { background: var(--bg); border-radius: 8px; padding: 8px 10px; }
+  #stats span { display: block; font-size: 12px; color: var(--muted); }
+  #preview { background: var(--cv-bg); border: 1px solid var(--line); border-radius: 10px; min-height: 260px; display: flex; align-items: center; justify-content: center; padding: 8px; margin-bottom: 12px; }
+  #preview svg { width: 100%; height: auto; max-height: 460px; }
+  #preview .hint { color: var(--muted); }
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow: auto; max-height: 320px; font-size: 12.5px; margin: 0; }
+  .legend { font-size: 12.5px; color: var(--muted); margin: -4px 0 12px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin: 0 4px 0 10px; vertical-align: middle; }
+
+  html, body { height: 100%; }
+  body { display: flex; flex-direction: column; min-height: 100vh; }
+  header { gap: 10px; align-items: center; }
+  header .sp { flex: 1; }
+  .tabs { display: flex; gap: 4px; }
+  .tabs button { border-radius: 8px 8px 0 0; }
+  .tabs button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  #toggle23 { font-weight: 700; }
+  .tab { display: none; flex: 1; min-height: 0; }
+  body[data-tab=draw] #tab-draw, body[data-tab=d3] #tab-d3 { display: grid; }
+  body[data-tab=machine] #tab-machine { display: grid; }
+  body[data-tab=print] #tab-print { display: grid; }
+  body[data-tab=library] #tab-library { display: grid; }
+  body[data-tab=model] #tab-model { display: grid; }
+  #tab-library { grid-template-columns: 330px 1fr; overflow: auto; }
+  #libSide { padding: 14px; border-right: 1px solid var(--line); background: var(--panel); overflow: auto; }
+  #libMain { padding: 14px; overflow: auto; }
+  #libBar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  #libBar input[type=text] { flex: 1; min-width: 180px; width: auto; }
+  #libBar select { width: auto; }
+  .lbHead { grid-column: 1 / -1; margin: 8px 0 0; font-size: 15px; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  #lbGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .lbCard { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden; display: flex; flex-direction: column; }
+  .lbThumb { background: var(--cv-bg); color: var(--cv-ent); height: 150px; display: flex; align-items: center; justify-content: center; padding: 8px; }
+  .lbThumb svg { width: 100%; height: 100%; }
+  #msDlg { width: min(980px, 96vw); max-height: 92vh; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink, inherit); }
+  #msDlg .msHead { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  #msDlg h2 { margin: 0; font-size: 18px; } #msDlg h3 { margin: 16px 0 4px; font-size: 15px; }
+  #msDlg .msBar { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 8px 0; } #msDlg .msBar input[type=text] { flex: 1; min-width: 180px; }
+  #msDlg .msWarn { margin: 8px 0; padding: 8px 10px; border-radius: 8px; background: var(--warn-bg); color: var(--warn-ink); font-size: 13px; }
+  #msDlg .msBody { overflow: auto; max-height: 56vh; }
+  .msT { width: 100%; border-collapse: collapse; } .msT td, .msT th { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: middle; font-size: 13.5px; }
+  .msT input { width: 100%; box-sizing: border-box; } .msT .k { font-size: 11px; color: var(--muted); } .msT .was { color: var(--muted); font-size: 12px; white-space: nowrap; }
+  .msT tr.ch td { background: var(--info-bg); } .msT td.df { background: var(--warn-bg); }
+  .lbThumb { position: relative; cursor: zoom-in; }
+  .lbThumb img.lbPhoto { width: 100%; height: 100%; object-fit: contain; border-radius: 6px; background: #fff; }
+  .lbThumb .lbMini { position: absolute; right: 6px; bottom: 6px; width: 54px; height: 44px; padding: 3px; border-radius: 6px; background: var(--cv-bg); border: 1px solid var(--line); }
+  #lbPicBox { border: 1px dashed var(--line); border-radius: 8px; min-height: 90px; display: flex; align-items: center; justify-content: center; padding: 6px; text-align: center; background: var(--bg); }
+  #lbPicBox.drop { border-color: var(--accent, #3b82f6); }
+  #lbPicPrev { max-width: 100%; max-height: 180px; border-radius: 6px; background: #fff; }
+  #lbBig { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.8); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; cursor: zoom-out; }
+  #lbBig img { max-width: 94vw; max-height: 74vh; background: #fff; border-radius: 8px; }
+  #lbBig .lbBigDraw { width: min(94vw, 420px); height: 18vh; background: var(--cv-bg); color: var(--cv-ent); border-radius: 8px; padding: 6px; }
+  #lbBig .lbBigDraw svg { width: 100%; height: 100%; }
+  #lbBig .cap { color: #fff; font-size: 14px; }
+  .lbInfo { padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .lbNotes { white-space: pre-wrap; }
+  .lbBtns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; padding-top: 8px; }
+  .lbBtns button { padding: 5px 10px; font-size: 13px; }
+  .lbMatch { margin-top: 6px; padding: 6px 8px; border-radius: 8px; background: var(--bg); font-size: 12.5px; }
+  .lbMatch.good { background: var(--info-bg); color: var(--info-ink); }
+  .lbMatch.mid { background: var(--warn-bg); color: var(--warn-ink); }
+  .histRow { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  @media (max-width: 1600px) { header .tagline { display: none; } }
+  @media (max-width: 1500px) { header { gap: 6px; padding: 10px 12px; } header button { padding: 7px 10px; } }
+  #histList { max-height: 55vh; overflow: auto; min-width: 320px; }
+  @media (max-width: 860px) { #tab-library { grid-template-columns: 1fr; } }
+
+  #tab-print { grid-template-columns: 1fr 360px; height: calc(100vh - 98px); }
+  @media (max-width: 860px) { #tab-print { grid-template-columns: 1fr; height: auto; } }
+  #tab-draw { grid-template-columns: 148px 1fr 300px; gap: 0; height: calc(100vh - 98px); }
+  #tab-d3 { grid-template-columns: 1fr 330px; height: calc(100vh - 98px); }
+  #tab-model { grid-template-columns: 1fr 340px; height: calc(100vh - 98px); }
+  [data-m=view] { position: relative; min-height: 300px; background: var(--bg); } [data-m=view] canvas { display: block; }
+  .mlist { max-height: 170px; overflow-y: auto; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 8px; }
+  .mrow { display: flex; align-items: center; gap: 8px; padding: 5px 8px; cursor: pointer; border-bottom: 1px solid var(--line); }
+  .mrow:last-child { border-bottom: 0; } .mrow.on { background: rgba(245,165,36,.15); } .mrow.act { outline: 1px solid var(--accent); outline-offset: -1px; }
+  .mrow .sw { width: 12px; height: 12px; border-radius: 3px; flex: none; } .mrow .nm { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  button.tiny { padding: 2px 8px; font-size: 11px; }
+  .nums { display: grid; grid-template-columns: 70px 1fr 1fr 1fr; gap: 4px; align-items: center; font-size: 12px; margin: 8px 0; } .nums input { min-width: 0; padding: 5px; }
+  [data-m=side] button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  @media (max-width: 860px) { #tab-model { grid-template-columns: 1fr; height: auto; } [data-m=view] { height: 60vh; } }
+  #wsBar { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: var(--panel); border-bottom: 1px solid var(--line); overflow-x: auto; flex: none; }
+  #wsBar .sp { flex: 1; }
+  .wsTab { display: flex; align-items: center; gap: 6px; padding: 3px 4px 3px 10px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-size: 13px; white-space: nowrap; }
+  .wsTab.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  .wsTab .wsX { padding: 0 6px; border: 0; background: transparent; color: inherit; font-size: 15px; line-height: 1; }
+  #wsBar .wsAdd { padding: 3px 10px; font-size: 12.5px; }
+
+  /* ---------- phone / tablet layout (only when body has class "mobile"; the desktop layout is untouched) ---------- */
+  .mobOnly { display: none; }
+  body.mobile .mobOnly { display: inline-block; }
+  body.mobile { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+  body.mobile header { flex-wrap: nowrap; overflow-x: auto; padding: 6px 8px; gap: 6px; }
+  body.mobile header h1 { font-size: 0; gap: 0; } body.mobile header h1 .logo { margin: 0; }
+  body.mobile header button, body.mobile .tabs button, body.mobile #wsBar button { min-height: 40px; padding: 6px 12px; white-space: nowrap; font-size: 14px; }
+  body.mobile .tabs { flex: none; } body.mobile header .sp { display: none; }
+  body.mobile #wsBar { padding: 4px 8px; } body.mobile .wsTab { min-height: 38px; }
+  body.mobile input, body.mobile select, body.mobile textarea { font-size: 16px; min-height: 40px; }
+  body.mobile button { min-height: 40px; }
+  body.mobile .tgrid button, body.mobile .row button, body.mobile .row3 button { min-height: 44px; font-size: 14px; }
+  body.mobile #tab-draw { grid-template-columns: 1fr; height: calc(100dvh - 104px); }
+  body.mobile #tab-draw > aside { position: fixed; top: 0; bottom: 0; z-index: 60; width: min(88vw, 340px); box-shadow: 0 0 30px rgba(0,0,0,.5); transition: transform .18s; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 80px; }
+  body.mobile #tab-draw > aside.tools { left: 0; transform: translateX(-105%); }
+  body.mobile #tab-draw > aside.props { right: 0; left: auto; transform: translateX(105%); }
+  body.mobile.showTools #tab-draw > aside.tools { transform: none; }
+  body.mobile.showProps #tab-draw > aside.props { transform: none; }
+  body.mobile #canvasWrap { min-height: 0; height: 100%; touch-action: none; }
+  body.mobile #mobBar { position: absolute; top: 8px; left: 8px; right: 8px; display: flex; justify-content: space-between; z-index: 5; pointer-events: none; }
+  body.mobile #mobBar button { pointer-events: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.35); padding: 8px 14px; }
+  body.mobile #mobAct { position: absolute; left: 50%; transform: translateX(-50%); bottom: 54px; display: flex; gap: 6px; z-index: 5; }
+  body.mobile #mobAct button { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.35); padding: 8px 12px; }
+  body.mobile #mobAct button:last-child { }
+  body.mobile #numrow { top: 54px; left: 8px; right: 8px; }
+  body.mobile #statusBar { font-size: 12px; max-height: 44px; overflow: hidden; }
+  body.mobile #coords { display: none; }
+  body.mobile #scrim { display: block; }
+  #scrim { display: none; position: fixed; inset: 0; z-index: 55; background: rgba(0,0,0,.35); }
+  body.mobile:not(.showTools):not(.showProps) #scrim { display: none; }
+  body.mobile #tab-d3, body.mobile #tab-model, body.mobile #tab-print, body.mobile #tab-library { grid-template-columns: 1fr; height: auto; }
+  body.mobile #viewer, body.mobile [data-m=view] { height: 55vh; min-height: 260px; }
+  body.mobile aside.props { border-left: 0; }
+  body.mobile .tg summary, body.mobile details > summary { padding: 8px 4px; }
+  #tab-machine { }
+  @media (max-width: 860px) { #tab-draw { grid-template-columns: 120px 1fr; height: auto; } #tab-draw aside.props { grid-column: 1 / -1; } #tab-d3 { grid-template-columns: 1fr; height: auto; } #viewer { height: 60vh; } #canvasWrap { height: 60vh; } }
+  aside { background: var(--panel); border-right: 1px solid var(--line); padding: 10px; overflow-y: auto; }
+  aside.props { border-right: 0; border-left: 1px solid var(--line); }
+  .tools button { display: block; width: 100%; padding: 7px 2px; margin-bottom: 5px; font-size: 12px; text-align: center; }
+  .tools button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .tools .gap { height: 8px; }
+  .tools details.sub { margin: 4px 0 0; padding: 0; border: 0; }
+  .tools details.sub > summary { font-size: 11px; color: var(--muted); padding: 3px 2px; }
+  .tools .tgrid button { font-size: 11.5px; line-height: 1.15; }
+  #pvWrap { position: relative; background: var(--cv-bg); min-height: 300px; display: flex; flex-direction: column; }
+  #pvCanvas { flex: 1; width: 100%; min-height: 0; display: block; }
+  #pvBar { display: flex; gap: 12px; align-items: center; padding: 8px 12px; border-top: 1px solid var(--line); background: var(--panel); }
+  #pvBar input[type=range] { flex: 1; }
+  #pvLegend { padding: 4px 12px 8px; background: var(--panel); }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .row3 button { padding: 7px 4px; font-size: 13px; }
+  .inl { display: flex; gap: 4px; } .inl input { min-width: 0; }
+  .bar { height: 8px; background: var(--bg); border-radius: 5px; margin: 6px 0 10px; overflow: hidden; } .bar > div { height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+  .jog { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 4px 0 8px; } .jog button { padding: 8px 2px; }
+  button.danger { background: #b3261e; color: #fff; border-color: #b3261e; font-weight: 700; padding: 12px; }
+  details.grp { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 8px; }
+  details.grp > summary { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .tools { overflow-y: auto; padding: 8px 8px !important; }
+  .tools details.tg { margin: 0 0 6px; border: 0; padding: 0; }
+  .tools details.tg > summary { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 4px 2px; list-style: none; }
+  .tools details.tg > summary::before { content: '\25BE '; }
+  .tools details.tg:not([open]) > summary::before { content: '\25B8 '; }
+  .tools .tgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .tools .tgrid button { margin: 0; padding: 7px 2px; }
+  .tools button.cutstart { border-color: #2a9d8f; }
+  #canvasWrap { position: relative; background: var(--cv-bg); min-height: 300px; }
+  #cv { width: 100%; height: 100%; display: block; outline: none; touch-action: none; cursor: none; }
+  #cv .curHalo { stroke: var(--cv-bg); stroke-width: 4.5; fill: none; }
+  #cv .cur { stroke: #d6336c; stroke-width: 1.6; fill: none; }
+  #cv .curDot { fill: #d6336c; stroke: var(--cv-bg); stroke-width: 1.5; }
+  #cv .gdot, #cv .ent, #cv .cur, #cv .curHalo, #cv .curDot { pointer-events: none; }
+  #statusBar { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 10px; background: var(--cv-bar); color: var(--muted); font-size: 12.5px; display: flex; gap: 14px; justify-content: space-between; border-top: 1px solid var(--line); }
+  #numrow { position: absolute; top: 8px; left: 8px; display: flex; gap: 6px; align-items: center; }
+  #numrow input { width: 190px; background: var(--panel); color: var(--ink); }
+  #cv .gdot { stroke: var(--cv-dot); stroke-width: 2; stroke-linecap: round; fill: none; }
+  #cv .gdot.major { stroke: var(--cv-dotmajor); stroke-width: 3; }
+  #cv .axis { stroke: var(--cv-axis); stroke-width: 1.2; fill: none; }
+  #cv .ent { stroke: var(--cv-ent); stroke-width: 1.7; stroke-linecap: round; }
+  #cv .ent.hover { stroke: var(--cv-hover); stroke-width: 2.6; }
+  #cv .ent.sel { stroke: var(--cv-sel); stroke-width: 2.6; }
+  #cv .ent.hot { stroke: #2a9d8f; stroke-width: 3; }
+  #cv .ent.tmp { stroke: #2a9d8f; stroke-dasharray: 5 4; }
+  #cv .snap { stroke: #d6336c; stroke-width: 1.8; fill: none; }
+  #cv .snap.faint { stroke: #aab; }
+  #cv .grip { fill: var(--cv-bg); stroke: #e76f51; stroke-width: 1.5; }
+  #cv .dimline { stroke: #2a9d8f; stroke-width: 1.3; fill: none; stroke-dasharray: 4 3; }
+  #cv .cpgrip { fill: var(--cv-bg); stroke: #2a9d8f; stroke-width: 2; }
+  #cv .startmk { fill: #2a9d8f; stroke: var(--cv-bg); stroke-width: 2; }
+  #cv .pt { fill: #2a9d8f; }
+  #cv .openend { fill: none; stroke: #d62828; stroke-width: 2; }
+  #cv .box { fill: rgba(31,111,235,.10); stroke: #1f6feb; }
+  #cv .box.cross { fill: rgba(42,157,143,.12); stroke: #2a9d8f; stroke-dasharray: 5 3; }
+  #cv .dimsolid { stroke-dasharray: none; }
+  #cv .lbl { font: 12px system-ui, sans-serif; fill: var(--cv-lbl); paint-order: stroke; stroke: var(--cv-lblbg); stroke-width: 3px; }
+  #viewer { position: relative; min-height: 300px; background: var(--bg); }
+  #viewer canvas { display: block; }
+  aside h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 16px 0 6px; }
+  aside h3:first-child { margin-top: 0; }
+  aside button.wide { width: 100%; margin-top: 6px; }
+  .box2 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .small { font-size: 12.5px; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 99px; background: var(--info-bg); color: var(--info-ink); font-size: 12px; }
+  #tab-machine { grid-template-columns: 330px 1fr; gap: 16px; padding: 16px; max-width: 1400px; margin: 0 auto; width: 100%; align-content: start; }
+  @media (max-width: 860px) { #tab-machine { grid-template-columns: 1fr; } }
+  [hidden] { display: none !important; }
+  .imgprev { max-width: 100%; max-height: 140px; border: 1px solid var(--line); border-radius: 6px; margin-top: 6px; }
+
+  body { background: radial-gradient(1200px 500px at 15% -10%, rgba(245,165,36,.07), transparent 60%), var(--bg); }
+  header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 10px 18px; }
+  header h1 { font-size: 19px; letter-spacing: .01em; display: flex; align-items: center; gap: 9px; }
+  .logo { width: 30px; height: 30px; border-radius: 8px; background: #0a0d12; border: 1px solid var(--line); display: inline-flex; align-items: center; justify-content: center; }
+  header span:not(.sp) { color: var(--muted); font-size: 12px; max-width: 330px; line-height: 1.25; }
+  button { background: var(--panel2); border-radius: 8px; }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button.primary, .tabs button.on, .tools button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .tabs button { border-radius: 8px; }
+  #toggle23 { border-color: var(--accent); color: var(--accent); }
+  #toggle23:hover { background: var(--accent-soft); }
+  aside, section { background: var(--panel); }
+  section { border-radius: 12px; }
+  input[type=range] { accent-color: var(--accent); }
+  input[type=checkbox] { accent-color: var(--accent); }
+  input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .pill { background: var(--accent-soft); color: var(--accent); }
+  #stats div { background: var(--panel2); }
+  #viewer { background: var(--bg); }
+  #drop.over { border-color: var(--accent); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; } ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }
+  dialog { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; max-width: 640px; padding: 20px 24px; }
+  dialog::backdrop { background: rgba(0,0,0,.55); }
+  .helpgrid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 20px; } .helpgrid h3 { margin: 0 0 4px; font-size: 13px; color: var(--accent); } .helpgrid ul { margin: 0; padding-left: 18px; font-size: 13.5px; } code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+  @media (max-width: 700px) { .helpgrid { grid-template-columns: 1fr; } }
+  #helpSearch { margin: 4px 0 10px; font-size: 15px; padding: 10px 12px; }
+  .helplist { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 260px; overflow-y: auto; }
+  .helplist .topic { text-align: left; padding: 8px 10px; font-size: 13.5px; }
+  .article { margin-top: 10px; padding: 12px 14px; background: var(--panel2); border-radius: 10px; border: 1px solid var(--line); }
+  .article h3 { margin: 0 0 6px; color: var(--accent); font-size: 15px; } .article p { margin: 0 0 10px; }
+  .welcomegrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .welcomegrid button { padding: 18px 14px; text-align: left; border-radius: 12px; display: block; }
+  .welcomegrid button b { display: block; font-size: 16px; margin-bottom: 4px; } .welcomegrid button span { color: var(--muted); font-size: 13px; }
+  .welcomegrid button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  #tour { position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; z-index: 50; width: min(520px, calc(100vw - 24px)); background: var(--panel); border: 2px solid var(--accent); border-radius: 14px; padding: 14px 16px; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+  #tourTitle { font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; } #tourText { font-size: 15px; margin-bottom: 10px; }
+  .tourbtns { display: flex; gap: 8px; justify-content: flex-end; }
+  .tour-hl { outline: 3px solid var(--accent) !important; outline-offset: 3px; border-radius: 8px; animation: tourpulse 1.4s ease-in-out infinite; position: relative; z-index: 5; }
+  @keyframes tourpulse { 0%,100% { box-shadow: 0 0 0 0 rgba(245,165,36,.55); } 50% { box-shadow: 0 0 0 10px rgba(245,165,36,0); } }
+  @media (max-width: 700px) { .helplist, .welcomegrid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-tab="draw">
+<header>
+  <h1><span class="logo" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M7 14.5a3.5 3.5 0 0 1 .4-7 5 5 0 0 1 9.5 1.3A3 3 0 0 1 17 14.5Z" stroke="#e9edf3" stroke-width="1.5" stroke-linejoin="round"/><path d="M7.59,18.36L8.30,18.49L8.22,19.29L7.50,19.27L7.23,19.82L7.69,20.37L7.12,20.94L6.57,20.46L6.02,20.71L6.02,21.43L5.21,21.49L5.10,20.78L4.51,20.61L4.05,21.17L3.40,20.70L3.77,20.08L3.43,19.57L2.72,19.70L2.52,18.92L3.20,18.69L3.26,18.08L2.64,17.72L2.99,16.99L3.66,17.25L4.10,16.83L3.85,16.15L4.59,15.82L4.93,16.45L5.54,16.40L5.79,15.73L6.57,15.95L6.42,16.65L6.92,17.01L7.55,16.65L8.00,17.32L7.44,17.77ZM6.30,18.60A0.9,0.9 0 1 0 4.50,18.60A0.9,0.9 0 1 0 6.30,18.60Z" fill="#f5a524" fill-rule="evenodd" transform="translate(0,.9)"/><path d="M14.27,18.70L14.95,19.15L14.55,19.87L13.81,19.52L13.35,19.94L13.64,20.71L12.88,21.05L12.49,20.33L11.87,20.40L11.65,21.19L10.84,21.03L10.95,20.21L10.41,19.91L9.77,20.42L9.21,19.81L9.77,19.22L9.51,18.65L8.69,18.68L8.60,17.86L9.41,17.71L9.53,17.10L8.85,16.65L9.25,15.93L9.99,16.28L10.45,15.86L10.16,15.09L10.92,14.75L11.31,15.47L11.93,15.40L12.15,14.61L12.96,14.77L12.85,15.59L13.39,15.89L14.03,15.38L14.59,15.99L14.03,16.58L14.29,17.15L15.11,17.12L15.20,17.94L14.39,18.09ZM13.00,17.90A1.1,1.1 0 1 0 10.80,17.90A1.1,1.1 0 1 0 13.00,17.90Z" fill="#f5a524" fill-rule="evenodd" transform="translate(0,.9)"/><path d="M20.64,19.12L21.26,19.48L20.91,20.21L20.24,19.95L19.80,20.37L20.05,21.05L19.31,21.38L18.97,20.75L18.36,20.80L18.11,21.47L17.33,21.25L17.48,20.55L16.98,20.19L16.35,20.55L15.90,19.88L16.46,19.43L16.31,18.84L15.60,18.71L15.68,17.91L16.40,17.93L16.67,17.38L16.21,16.83L16.78,16.26L17.33,16.74L17.88,16.49L17.88,15.77L18.69,15.71L18.80,16.42L19.39,16.59L19.85,16.03L20.50,16.50L20.13,17.12L20.47,17.63L21.18,17.50L21.38,18.28L20.70,18.51ZM19.40,18.60A0.9,0.9 0 1 0 17.60,18.60A0.9,0.9 0 1 0 19.40,18.60Z" fill="#f5a524" fill-rule="evenodd" transform="translate(0,.9)"/></svg></span>Cloud's CAD</h1>
+  <div class="tabs">
+    <button data-tab="draw" class="on">Draw (2D)</button>
+    <button data-tab="d3">3D</button>
+    <button data-tab="model">3D Build</button>
+    <button data-tab="machine">Machine</button>
+    <button data-tab="print">3D Print</button>
+    <button data-tab="library">Library</button>
+  </div>
+  <button id="mobBtn" class="mobOnly" title="Switch back to the full desktop layout">Desktop view</button>
+  <button id="toggle23" title="Switch between the 2D drawing and the 3D model">2D ⇄ 3D</button>
+  <span class="sp"></span>
+  <button id="openBtn">Open file…</button>
+  <button id="addBtn" title="Bring another drawing (DXF, project, machine file) into this one, e.g. the second half of a molding">Add drawing…</button>
+  <button id="saveProj">Save project</button>
+  <button id="histBtn" title="Go back to an earlier version of your drawing (kept automatically)">History</button>
+  <button id="helpBtn" title="Shortcuts and how to use it">? Help</button>
+  <button id="themeBtn" title="Switch between dark and light">☀ Light</button>
+  <input id="addFile" type="file" accept=".dxf,.tap,.nc,.gcode,.txt,.cloudcad,.json" multiple hidden>
+  <input id="openFile" type="file" accept=".dxf,.tap,.nc,.gcode,.txt,.cloudcad,.json,.stl,.obj,.glb,.ply" hidden>
+  <span class="tagline">Free and open source (GPL v3). Runs on your computer; nothing is uploaded.</span>
+</header>
+<div id="wsBar"></div>
+<div id="scrim"></div>
+
+<!-- ============ DRAW ============ -->
+<div class="tab" id="tab-draw">
+  <aside class="tools" id="tools">
+    <details open class="tg"><summary>Select</summary>
+      <div class="tgrid">
+        <button data-tool="select" title="V">Select</button>
+        <button data-tool="hand" class="mobOnly" title="Move the view around">Pan</button>
+        <button id="selAll" title="Ctrl+A">All</button>
+      </div>
+    </details>
+    <details open class="tg"><summary>Lines</summary>
+      <div class="tgrid">
+        <button data-tool="line" title="L">Line</button>
+        <button data-tool="curve" title="U">Curve</button>
+        <button data-tool="freehand" title="W">Freehand</button>
+        <button data-tool="hline">Horizontal</button>
+        <button data-tool="vline">Vertical</button>
+      </div>
+      <details class="sub"><summary>More lines</summary>
+        <div class="tgrid">
+          <button data-tool="perp">Right angle to</button>
+          <button data-tool="pthru">Parallel through point</button>
+          <button data-tool="bisector">Bisector</button>
+          <button data-tool="tanpc">Tangent from point</button>
+          <button data-tool="tancc">Tangent, 2 circles</button>
+          <button data-tool="divide">Divide into parts</button>
+        </div>
+      </details>
+    </details>
+    <details open class="tg"><summary>Shapes</summary>
+      <div class="tgrid">
+        <button data-tool="rect" title="R">Rectangle</button>
+        <button data-tool="rect3">Tilted rectangle</button>
+        <button data-tool="circle" title="C">Circle</button>
+        <button data-tool="arc" title="A">Arc</button>
+      </div>
+      <details class="sub"><summary>More circles</summary>
+        <div class="tgrid">
+          <button data-tool="circR">Center + radius</button>
+          <button data-tool="circ2p">2 points (diameter)</button>
+          <button data-tool="circ3p">3 points</button>
+          <button data-tool="circ2pr">2 points + radius</button>
+          <button data-tool="circIn">Inside 3 lines</button>
+          <button data-tool="circArc">Arc to circle</button>
+        </div>
+      </details>
+      <details class="sub"><summary>More arcs</summary>
+        <div class="tgrid">
+          <button data-tool="arcCPA">Center + angles</button>
+          <button data-tool="arcTan">Continue a line</button>
+        </div>
+      </details>
+      <details class="sub"><summary>Polygons, stars, ellipses</summary>
+        <div class="tgrid">
+          <button data-tool="polyCC">Polygon: center + corner</button>
+          <button data-tool="polyCT">Polygon: center + side</button>
+          <button data-tool="polyKK">Polygon: 2 corners</button>
+          <button data-tool="star">Star</button>
+          <button data-tool="ellipse">Ellipse</button>
+          <button data-tool="ellipseF">Ellipse from foci</button>
+        </div>
+      </details>
+    </details>
+    <details open class="tg"><summary>Modify</summary>
+      <div class="tgrid">
+        <button data-tool="move" title="M">Move</button>
+        <button data-tool="copy" title="Y">Copy</button>
+        <button data-tool="rotate" title="O">Rotate</button>
+        <button data-tool="scale" title="K">Scale</button>
+        <button data-tool="mirror" title="I">Mirror</button>
+        <button data-tool="stretch" title="G">Stretch</button>
+        <button data-tool="trim" title="T">Trim</button>
+        <button data-tool="extend" title="E">Extend</button>
+        <button data-tool="break" title="B">Break</button>
+        <button data-tool="delnode" title="X">Delete point</button>
+        <button id="explodeBtn" title="Circle into 2 arcs; curve into plain lines (needs a selection)">Explode</button>
+        <button id="joinBtn" title="Close tiny gaps and merge straight pieces (uses the selection, or everything)">Join</button>
+        <button id="revBtn" title="Flip the direction the wire travels on the selection (or everything)">Reverse</button>
+        <button data-tool="offset" title="P">Parallel</button>
+        <button data-tool="fillet" title="F">Fillet</button>
+        <button data-tool="chamfer" title="H">Chamfer</button>
+      </div>
+    <details class="sub"><summary>Mirror + join, smooth</summary>
+      <label>Mirror the selection across its</label>
+      <select id="mjSide"><option value="right">right edge</option><option value="left">left edge</option><option value="top">top edge</option><option value="bottom">bottom edge</option></select>
+      <button id="mjGo" class="wide" title="Mirrors a half profile and joins the two halves into one outline">Mirror and join into one outline</button>
+      <label>Smooth strength (1 gentle to 10 strong)</label><input id="smStrength" type="number" min="1" max="10" step="1" value="3">
+      <button id="smGo" class="wide" title="Turns jagged traced lines into smooth curves and keeps sharp corners">Smooth traced lines (selection or all)</button>
+    </details>
+    <details class="sub"><summary>Nest in a foam block</summary>
+      <label>Block width / height</label>
+      <div class="row"><div><input id="nW" type="number" step="any" value="48"></div><div><input id="nH" type="number" step="any" value="12"></div></div>
+      <label>Space between pieces / edge room</label>
+      <div class="row"><div><input id="nGap" type="number" step="any" value="0.5"></div><div><input id="nMargin" type="number" step="any" value="0.5"></div></div>
+      <label>Tether width (gap between the in and out lines)</label><input id="nTW" type="number" step="any" value="0.06">
+      <label>Tether height (% up from the bottom of the piece)</label><input id="nTP" type="number" step="1" min="1" max="95" value="25">
+      <label>How many (0 = as many as fit)</label><input id="nCount" type="number" step="1" min="0" value="0">
+      <label>Ends</label>
+      <select id="nLeads"><option value="both">Lead in left and out right (top half, then other half)</option><option value="right">One lead on the right (one pass)</option><option value="left">One lead on the left (one pass)</option><option value="none">No leads (one closed loop)</option></select>
+      <label class="check"><input id="nAlt" type="checkbox"> Turn every other piece upside down</label>
+      <button id="nestGo" class="wide" title="Lines the closed profiles up in a row inside the block and joins them with thin in-and-out tether lines">Nest and tether (selection or all)</button>
+    </details>
+    </details>
+    <details open class="tg"><summary>Info and cut</summary>
+      <div class="tgrid">
+        <button data-tool="measure" title="D">Measure</button>
+        <button data-tool="dim" title="Leave a length dimension on the drawing">Dimension</button>
+        <button data-tool="dimAng" title="Leave an angle on the drawing">Angle</button>
+        <button data-tool="dimRad" title="Leave a radius on the drawing">Radius</button>
+        <button id="infoBtn" title="Total cut length and area of the selection (or everything)">Length and area</button>
+        <button id="dimClear" title="Remove all dimensions you added">Clear dims</button>
+        <button data-tool="calibAll" title="Click two points, type the real length, and everything is scaled to match">Calibrate</button>
+        <button data-tool="start" title="S" class="cutstart">Cut start</button>
+      </div>
+    </details>
+    <details open class="tg"><summary>Edit</summary>
+      <div class="tgrid">
+        <button id="undo" title="Ctrl+Z">Undo</button>
+        <button id="redo" title="Ctrl+Y">Redo</button>
+        <button id="del" title="Delete">Delete</button>
+        <button id="fitView">Fit view</button>
+      </div>
+    </details>
+  </aside>
+  <div id="canvasWrap">
+    <svg id="cv" tabindex="0" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="mobBar" class="mobOnly"><button id="mTools">☰ Tools</button><button id="mProps">⚙ Options</button></div>
+    <div id="mobAct" class="mobOnly"><button id="mUndo">Undo</button><button id="mRedo">Redo</button><button id="mDel">Delete</button><button id="mDone">Done</button><button id="mFit">Fit</button></div>
+    <div id="numrow"><input id="num" type="text" placeholder="type a size, press Enter" autocomplete="off"></div>
+    <div id="statusBar"><span id="hint"></span><span id="coords"></span></div>
+  </div>
+  <aside class="props">
+    <h3>Tool options</h3>
+    <div data-for="fillet" hidden><label>Fillet radius</label><input id="filletR" type="number" step="any" value="0.25"></div>
+    <div data-for="chamfer" hidden><label>Chamfer distance</label><input id="chamferD" type="number" step="any" value="0.25"></div>
+    <div data-for="offset" hidden><label>Distance</label><input id="offsetD" type="number" step="any" value="0.25"></div>
+    <div data-for="rotate" hidden><label class="check"><input id="rotCopy" type="checkbox"> Keep the original (rotate a copy)</label></div>
+    <div data-for="polyCC polyCT polyKK" hidden><label>Number of sides</label><input id="oSides" type="number" min="3" step="1" value="6"></div>
+    <div data-for="star" hidden><div class="row"><div><label>Points</label><input id="oPoints" type="number" min="3" step="1" value="5"></div><div><label>Depth (0.1 to 0.9)</label><input id="oRatio" type="number" min="0.1" max="0.9" step="0.05" value="0.4"></div></div></div>
+    <div data-for="bisector" hidden><label>Bisector length</label><input id="oBis" type="number" step="any" value="1"></div>
+    <div data-for="divide" hidden><label>Number of equal parts</label><input id="oDiv" type="number" min="2" step="1" value="2"></div>
+    <div data-for="circR circ2pr" hidden><label>Circle radius</label><input id="oCircR" type="number" step="any" value="1"></div>
+    <div data-for="select line rect circle arc curve trim move copy scale extend break stretch freehand hline vline" class="small hint">Press a number key and type a size, then Enter. Hold Shift for straight horizontal/vertical.</div>
+
+    <h3>Drawing</h3>
+    <div class="row">
+      <div><label>Units</label><select id="docUnits"><option value="in">Inches</option><option value="mm">Millimeters</option><option value="cm">Centimeters</option><option value="ft">Feet</option></select></div>
+      <div><label>Finest grid</label><input id="grid" type="number" step="any" value="0.01" min="0.0001"></div>
+    </div>
+    <label class="check"><input id="snapGrid" type="checkbox"> Snap to grid</label>
+    <label class="check"><input id="snapEnd" type="checkbox" checked> Snap to ends, middles, centers</label>
+    <details><summary>More display and snap options</summary>
+      <label class="check"><input id="snapOrtho" type="checkbox"> Always straight (horizontal/vertical)</label>
+      <label class="check"><input id="showGrid" type="checkbox" checked> Show grid</label>
+      <label class="check"><input id="showDims" type="checkbox"> Show overall size</label>
+      <label class="check"><input id="showOpen" type="checkbox" checked> Mark open ends in red</label>
+    </details>
+    <div id="report" class="small" style="margin-top:8px"></div>
+
+    <h3>Selected</h3>
+    <div id="selInfo" class="small hint">Nothing selected.</div>
+    <div id="selEdit" hidden>
+      <div id="editLine" hidden class="row">
+        <div><label>Length</label><input id="eLen" type="number" step="any"></div>
+        <div><label>Angle (°)</label><input id="eAng" type="number" step="any"></div>
+      </div>
+      <div id="editRad" hidden><label>Radius</label><input id="eRad" type="number" step="any"></div>
+    </div>
+    <label class="check" style="margin-top:8px" title="On: Set width or height scales the whole thing evenly. Off: only that one size changes, so you can fix the height, then the width separately."><input id="keepProp" type="checkbox" checked> Keep proportions (scale the whole thing)</label>
+    <div class="row" style="margin-top:6px">
+      <button id="scaleTo" class="wide" title="Scale the selection (or everything) so its width is exactly this">Set width…</button>
+      <button id="scaleToH" class="wide">Set height…</button>
+    </div>
+    <button id="scaleBy" class="wide" style="margin-top:6px" title="Make the selection (or everything) bigger or smaller by a factor">Scale by factor…</button>
+
+    <details class="grp"><summary>Copies (rows and circles) and clean up</summary>
+    <details><summary>Row of copies (linear array)</summary>
+      <div class="box2"><div><label>Count</label><input id="laN" type="number" value="3" min="2"></div><div><label>dX</label><input id="laX" type="number" step="any" value="1"></div><div><label>dY</label><input id="laY" type="number" step="any" value="0"></div></div>
+      <button id="laGo" class="wide">Make row (selection)</button>
+    </details>
+    <details><summary>Copies around a point (polar)</summary>
+      <div class="box2"><div><label>Count</label><input id="paN" type="number" value="4" min="2"></div><div><label>Total °</label><input id="paA" type="number" value="360"></div><div><label>Center</label><select id="paC"><option value="o">0,0</option><option value="s">Selection center</option></select></div></div>
+      <button id="paGo" class="wide">Make copies (selection)</button>
+    </details>
+    <details><summary>Clean up</summary>
+      <button id="cleanBtn" class="wide" title="Removes duplicate, overlapping and tiny loose pieces, and closes small gaps">Clean up the file</button>
+      <button id="clearBtn" class="wide">Clear drawing</button>
+    </details>
+    </details>
+
+    <details class="grp"><summary>Pictures: trace over a photo</summary>
+    <input id="imgFile" type="file" accept="image/*">
+    <img id="imgPrev" class="imgprev" alt="" hidden>
+    <details open><summary>1. Trace over it by hand (like FreeCAD)</summary>
+      <button id="bgUse" class="wide primary">Show picture behind the drawing</button>
+      <div id="bgCtl" hidden>
+        <label>Picture opacity</label><input id="bgOp" type="range" min="5" max="100" value="55">
+        <div class="row"><div><label>Width (<span class="u">in</span>)</label><input id="bgW" type="number" step="any"></div>
+          <div><label>Rotate</label><select id="bgRot"><option value="0">-</option><option value="1">Flip left/right</option><option value="2">Flip up/down</option></select></div></div>
+        <div class="row"><button id="bgCal">Set size by 2 points</button><button id="bgMove">Move picture</button></div>
+        <div class="row"><button id="bgFit">Zoom to picture</button><button id="bgHide">Hide / show</button></div>
+        <button id="bgDel" class="wide">Remove picture</button>
+        <p class="hint">Set the size using something of known length in the photo (a ruler, or the part's width). Then draw over it with <b>Curve</b> and <b>Line</b>: the picture is never cut.</p>
+      </div>
+    </details>
+    <details><summary>2. Auto-trace the outline</summary>
+      <label>What to trace</label>
+      <select id="imgMode"><option value="auto">Auto: the main shape color (ignores text and dimension lines)</option><option value="pick">The color I click on the picture</option><option value="dark">Anything dark</option></select>
+      <p class="hint" style="margin-top:4px"><span id="pickSwatch" style="display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;border:1px solid var(--line)"></span> Click the picture above to choose a color.</p>
+      <div class="row"><div><label>Threshold (dark mode)</label><input id="imgTh" type="range" min="10" max="245" value="128"></div>
+        <div><label>Smoothing</label><input id="imgTol" type="number" step="any" value="1.2" min="0.2"></div></div>
+      <label class="check"><input id="imgSmooth" type="checkbox" checked> Smooth curves (keeps sharp corners, rounds the bumps)</label>
+      <label class="check"><input id="imgInv" type="checkbox"> Object is light on a dark background</label>
+      <label>Real width of the object (drawing units)</label><input id="imgW" type="number" step="any" placeholder="e.g. 4.5">
+      <button id="imgGo" class="wide primary">Trace into drawing</button>
+      <p class="hint">Best with a clear dark shape on a plain light background, photographed straight on.</p>
+    </details>
+    </details>
+  </aside>
+</div>
+
+<!-- ============ 3D ============ -->
+<div class="tab" id="tab-d3">
+  <div id="viewer"><div id="noGL" class="hint" style="padding:20px" hidden>3D view needs WebGL, which this browser does not have. All the tools still work; use Machine/Draw tabs.</div></div>
+  <aside class="props">
+    <h3>Model</h3>
+    <div id="modelInfo" class="small hint">No model yet. Extrude your drawing, open a model file, or carve one from views.</div>
+    <div class="row"><button id="viewFit">Reset view</button><button id="exportSTL" disabled>Export STL</button></div>
+    <button id="toBuild" class="wide" disabled title="Open this model in the 3D Build tab to cut, extrude and reshape it">Edit this model in 3D Build</button>
+
+    <h3>Extrude the drawing</h3>
+    <label>Thickness (drawing units)</label><input id="exDepth" type="number" step="any" value="2">
+    <button id="exGo" class="wide primary">Extrude closed outlines</button>
+    <div id="exMsg" class="small hint"></div>
+
+    <h3>Open a 3D model</h3>
+    <button id="openModel" class="wide">Choose STL / OBJ / GLB / PLY…</button>
+    <input id="modelFile" type="file" accept=".stl,.obj,.glb,.ply" hidden>
+    <div class="row"><div><label>Which way is up</label><select id="upAxis"><option value="z">Z (CAD)</option><option value="y">Y (most 3D apps)</option><option value="x">X</option></select></div>
+      <div><label>Size: longest side</label><input id="mSize" type="number" step="any" placeholder="drawing units"></div></div>
+    <button id="applyModel" class="wide" disabled>Apply up-axis and size</button>
+    <p class="hint">Works with models from any generator or program (Modly and others) that can save STL, OBJ, GLB or PLY.</p>
+
+    <h3>Get a 2D profile from the model</h3>
+    <div class="row"><button data-sil="front">Front</button><button data-sil="side">Side</button><button data-sil="top">Top</button></div>
+    <label>Or cut a slice at height (Z)</label>
+    <input id="secZ" type="range" min="0" max="1" step="0.001" value="0.5"><div id="secVal" class="small hint"></div>
+    <button id="secGo" class="wide" disabled>Slice into drawing</button>
+    <label class="check"><input id="profReplace" type="checkbox" checked> Replace the current drawing</label>
+
+    <h3>Make 3D from views</h3>
+    <p class="hint small">Give 1 to 3 outlines. Each can be your drawing, a picture, or the current model. The shape is what fits all of them.</p>
+    <div id="slots"></div>
+    <div class="box2"><div><label>Width X</label><input id="cvW" type="number" step="any" value="4"></div><div><label>Depth Y</label><input id="cvD" type="number" step="any" value="4"></div><div><label>Height Z</label><input id="cvH" type="number" step="any" value="4"></div></div>
+    <label>Detail</label><select id="cvN"><option value="64">Fast</option><option value="96" selected>Normal</option><option value="140">Fine</option></select>
+    <button id="cvGo" class="wide primary">Carve</button>
+    <div id="cvMsg" class="small hint"></div>
+  </aside>
+</div>
+
+
+<!-- ============ 3D BUILD ============ -->
+<div class="tab" id="tab-model">
+  <div data-m="view"><div id="noGL2" class="hint" style="padding:20px" hidden>3D needs WebGL, which this browser does not have.</div></div>
+  <aside class="props" data-m="side"></aside>
+</div>
+
+<!-- ============ 3D PRINT ============ -->
+<div class="tab" id="tab-library">
+  <aside id="libSide">
+    <h2>Save a profile</h2>
+    <p class="hint" style="margin-top:0">Saves what is selected, or the whole drawing if nothing is selected.</p>
+    <label>Name</label><input id="lbName" type="text" placeholder="e.g. 5 1/4 crown, left half">
+    <label>Customer (type a new one or pick one you have used)</label><input id="lbCustomer" type="text" list="lbCustomers" autocomplete="off"><datalist id="lbCustomers"></datalist>
+    <label>Tags (commas)</label><input id="lbTags" type="text" placeholder="crown, corner, 45 degree">
+    <label>Notes</label><textarea id="lbNotes" rows="3"></textarea>
+    <label>Reference picture (a photo from the customer, or a snip of the drawing)</label>
+    <div id="lbPicBox"><img id="lbPicPrev" alt="" hidden><span id="lbPicNone" class="hint">No picture yet. You can also paste one here with Ctrl+V, or drop an image on this box.</span></div>
+    <div class="actions" style="margin-top:6px"><button id="lbPicAdd" title="Pick a photo or screenshot. On a phone this can open the camera.">Add photo...</button><button id="lbPicSnip" title="Take a picture of what is selected, or the whole drawing">Snip from drawing</button><button id="lbPicClear" hidden>Remove picture</button></div>
+    <input id="lbPicFile" type="file" accept="image/*" hidden>
+    <label class="check" hidden><input id="lbReshape" type="checkbox"> Also replace the saved shape with the drawing</label>
+    <div class="actions" style="margin-top:12px"><button id="lbSave" class="primary">Save to library</button><button id="lbCancelEdit" hidden>Cancel edit</button></div>
+    <button id="lbUpdate" class="wide" style="margin-top:8px" hidden title="You opened this profile from the library and changed the drawing. This saves your changes back over it.">Update with the drawing</button>
+    <button id="lbSaveAll" class="wide" style="margin-top:8px" title="If the drawing holds several separate profiles (a customer sent a few styles in one file), save each one as its own profile under this customer">Save every separate piece as its own profile</button>
+    <p class="hint small">Uses the name box as the start of each name (Style 1, Style 2...) and the customer above.</p>
+    <details open><summary>Match what I have</summary>
+      <p class="hint">Compares your drawing (or selection) to every saved profile, whatever the size, and even if it is turned or flipped.</p>
+      <button id="lbMatch" class="wide">Find the closest profiles</button><button id="lbClearMatch" class="wide" hidden>Show everything again</button>
+    </details>
+    <details><summary>Backup</summary>
+      <p class="hint">The library is kept on this computer. Export to back it up or move it to another computer.</p>
+      <div class="actions"><button id="lbExport" title="Backs up everything, or just the customer picked at the top of the list">Export library</button><button id="lbImport">Import library</button></div>
+      <input id="lbImportFile" type="file" accept=".cloudlib,.json" hidden>
+    </details>
+  </aside>
+  <div id="libMain">
+    <div id="libBar"><select id="lbCust" title="Show one customer's profiles"></select><input id="lbSearch" type="text" placeholder="Search name, customer, tags, notes..."><select id="lbSort"><option value="new">Newest first</option><option value="name">Name A to Z</option></select><span id="lbCount" class="hint"></span></div>
+    <p id="lbEmpty" class="hint">Nothing saved yet. Draw or open a profile, then save it on the left. Next time a customer sends the same one, press Find the closest profiles.</p>
+    <div id="lbGrid"></div>
+  </div>
+</div>
+<div class="tab" id="tab-print">
+  <div id="pvWrap">
+    <canvas id="pvCanvas"></canvas>
+    <div id="pvBar"><input id="pvLayer" type="range" min="0" max="0" value="0" disabled><span id="pvLayerTxt" class="small hint"></span><label class="check" style="margin:0"><input id="pvLower" type="checkbox" checked> show layers below</label></div>
+    <div id="pvLegend" class="small hint"><span style="color:#f4a62a">&#9632;</span> outer wall <span style="color:#b9772a">&#9632;</span> inner wall <span style="color:#5aa9c9">&#9632;</span> infill <span style="color:#3fb8a4">&#9632;</span> solid <span style="color:#d05fb0">&#9632;</span> support <span style="color:#9aa3b2">&#9632;</span> skirt/brim</div>
+  </div>
+  <aside class="props" id="printSide">
+    <h3>1. The model</h3>
+    <div id="pModelInfo" class="small hint">No model yet. Open an STL/OBJ in the 3D tab, extrude your drawing, or use Open file.</div>
+    <div class="row"><div><label>Model is in</label><select id="pUnits"><option value="mm">Millimeters</option><option value="in">Inches</option><option value="cm">Centimeters</option></select></div>
+      <div><label>Size %</label><input id="pScale" type="number" step="any" value="100" min="1"></div></div>
+    <div class="row"><div><label>Move left/right (mm)</label><input id="pDx" type="number" step="any" value="0"></div><div><label>Move front/back (mm)</label><input id="pDy" type="number" step="any" value="0"></div></div>
+    <div class="row"><div><label>Longest side (mm)</label><input id="pLongest" type="number" step="any" min="1"></div><div><label>&nbsp;</label><button id="pFitBed" class="wide">Fit to bed</button></div></div>
+    <div class="row3"><button data-rot="x">Turn X 90&deg;</button><button data-rot="y">Turn Y 90&deg;</button><button data-rot="z">Turn Z 90&deg;</button></div>
+    <button id="pRotReset" class="wide" style="margin-top:6px">Reset turns</button>
+
+    <h3>2. Printer, material, quality</h3>
+    <label>Printer</label><select id="pPrinter"></select>
+    <div class="row"><div><label>Material</label><select id="pMaterial"></select></div><div><label>Quality</label><select id="pQuality"></select></div></div>
+    <div id="pMatNote" class="small hint"></div>
+    <label class="check"><input id="pSupport" type="checkbox"> Supports under overhangs</label>
+    <div class="row"><div><label>Sticking to the bed</label><select id="pAdhesion"><option value="skirt">Skirt (outline nearby)</option><option value="brim">Brim (wide rim)</option><option value="none">None</option></select></div><div><label>Infill %</label><input id="pInfill" type="number" min="0" max="100" step="5" value="20"></div></div>
+    <details><summary>All settings (optional)</summary>
+      <div class="row"><div><label>Layer height</label><input id="pLayer" type="number" step="0.01" value="0.2"></div><div><label>First layer</label><input id="pFirst" type="number" step="0.01" value="0.2"></div></div>
+      <div class="row"><div><label>Line width</label><input id="pWidth" type="number" step="0.01" value="0.45"></div><div><label>Walls</label><input id="pWalls" type="number" min="1" step="1" value="2"></div></div>
+      <div class="row"><div><label>Top thickness</label><input id="pTop" type="number" step="0.1" value="0.8"></div><div><label>Bottom thickness</label><input id="pBottom" type="number" step="0.1" value="0.6"></div></div>
+      <div class="row"><div><label>Infill pattern</label><select id="pPattern"><option value="lines">Lines</option><option value="grid">Grid</option><option value="triangles">Triangles (Cura/Prusa)</option><option value="cubic">Cubic (Cura/Prusa)</option><option value="gyroid">Gyroid (Cura/Prusa)</option></select></div><div><label>Support angle</label><input id="pSupAngle" type="number" value="50"></div></div>
+      <div class="row"><div><label>Nozzle &deg;C</label><input id="pNozzle" type="number" value="205"></div><div><label>First layer nozzle &deg;C</label><input id="pNozzle1" type="number" value="210"></div></div>
+      <div class="row"><div><label>Bed &deg;C</label><input id="pBed" type="number" value="60"></div><div><label>Fan %</label><input id="pFan" type="number" min="0" max="100" value="100"></div></div>
+      <div class="row"><div><label>Outer wall mm/s</label><input id="pSpOuter" type="number" value="40"></div><div><label>Inner wall mm/s</label><input id="pSpWall" type="number" value="50"></div></div>
+      <div class="row"><div><label>Infill mm/s</label><input id="pSpInfill" type="number" value="70"></div><div><label>Travel mm/s</label><input id="pSpTravel" type="number" value="150"></div></div>
+      <div class="row"><div><label>First layer mm/s</label><input id="pSpFirst" type="number" value="20"></div><div><label>Brim width</label><input id="pBrimW" type="number" value="6"></div></div>
+      <div class="row"><div><label>Retract mm</label><input id="pRetract" type="number" step="0.1" value="1"></div><div><label>Retract mm/s</label><input id="pRetractSp" type="number" value="35"></div></div>
+      <div class="row"><div><label>Z hop mm</label><input id="pZhop" type="number" step="0.1" value="0"></div><div><label>Flow %</label><input id="pFlow" type="number" value="100"></div></div>
+      <div class="row3"><div><label>Bed X</label><input id="pBedX" type="number" value="220"></div><div><label>Bed Y</label><input id="pBedY" type="number" value="220"></div><div><label>Height</label><input id="pBedZ" type="number" value="250"></div></div>
+      <label class="check"><input id="pRelE" type="checkbox"> Relative extruder moves (M83; Klipper, Prusa)</label>
+      <label class="check"><input id="pCenter" type="checkbox"> Bed center is 0,0 (delta printers)</label>
+      <label>Start G-code (blank = standard heat, home, prime line)</label><textarea id="pStart" rows="4" placeholder="{nozzle} {bed} {firstNozzle} are filled in"></textarea>
+      <label>End G-code (blank = standard)</label><textarea id="pEnd" rows="3"></textarea>
+    </details>
+
+    <h3>3. Slice</h3>
+    <div id="pEngineBox" hidden><label>Slicer engine</label><select id="pEngine"><option value="cura">Cura engine (built in, recommended)</option><option value="builtin">Basic (simple, always works)</option><option value="prusa">PrusaSlicer (installed on this computer)</option></select>
+      <div class="small hint" id="pEngineNote"></div><button id="pFindSlicer" class="wide" hidden>Find PrusaSlicer...</button></div>
+    <button id="pSlice" class="wide primary">Slice the model</button>
+    <div id="pProg" class="small hint"></div>
+    <div id="pStats" class="small"></div>
+    <div id="pWarn"></div>
+    <div class="row"><button id="pSave" class="wide" disabled>Save G-code</button><button id="pResetAll" class="wide">Reset settings</button></div>
+
+    <h3>4. Printer</h3>
+    <p class="hint small" style="margin-top:0">Cloud's CAD can run a printer straight from this page. Always stay near the printer for the first layers.</p>
+    <label>Connection</label>
+    <select id="cKind"><option value="serial">USB cable (Marlin and similar)</option><option value="moonraker">Network: Klipper / Moonraker (Fluidd, Mainsail)</option><option value="octoprint">Network: OctoPrint</option></select>
+    <div id="cNet" hidden>
+      <label>Printer address</label><input id="cHost" type="text" placeholder="e.g. 192.168.1.50 or mainsailos.local">
+      <label>API key (OctoPrint needs it)</label><input id="cKey" type="password" autocomplete="off">
+    </div>
+    <div id="cUsb"><label>Baud rate</label><select id="cBaud"><option>115200</option><option>250000</option><option>57600</option><option>230400</option></select></div>
+    <div class="row"><button id="cConnect" class="wide primary">Connect</button><button id="cDisconnect" class="wide" disabled>Disconnect</button></div>
+    <div id="cMsg" class="small hint"></div>
+    <div id="cLive" hidden>
+      <div id="cState" class="msg info" style="margin-top:8px"></div>
+      <div id="cTemps" class="small"></div>
+      <div class="bar"><div id="cBar"></div></div>
+      <div class="row"><div><label>Nozzle &deg;C</label><div class="inl"><input id="cHot" type="number" value="0"><button id="cHotSet">Set</button></div></div><div><label>Bed &deg;C</label><div class="inl"><input id="cBedT" type="number" value="0"><button id="cBedSet">Set</button></div></div></div>
+      <div class="row"><button id="cPreheat" class="wide">Heat for this material</button><button id="cCool" class="wide">Heaters off</button></div>
+      <label>Move</label>
+      <div class="jog"><span></span><button data-jog="y+">Y+</button><span></span><button data-jog="z+">Z+</button>
+        <button data-jog="x-">X-</button><button data-jog="home">Home</button><button data-jog="x+">X+</button><span></span>
+        <span></span><button data-jog="y-">Y-</button><span></span><button data-jog="z-">Z-</button></div>
+      <div class="row"><div><label>Step mm</label><select id="cStep"><option>0.1</option><option>1</option><option selected>10</option><option>50</option></select></div><div><label>Fan %</label><div class="inl"><input id="cFan" type="number" value="0" min="0" max="100"><button id="cFanSet">Set</button></div></div></div>
+      <div class="row3"><button id="cHomeXY">Home XY</button><button id="cHomeZ">Home Z</button><button id="cExt">Feed 5 mm</button></div>
+      <div class="row3" style="margin-top:6px"><button id="cRet">Pull back 5 mm</button><button id="cMotors">Motors off</button><span></span></div>
+      <div class="row" style="margin-top:10px"><button id="cStart" class="wide primary">Print this</button><button id="cUpload" class="wide" hidden>Upload only</button></div>
+      <div class="row3" style="margin-top:6px"><button id="cPause">Pause</button><button id="cResume">Resume</button><button id="cCancel">Cancel print</button></div>
+      <button id="cEstop" class="wide danger" style="margin-top:10px">EMERGENCY STOP</button>
+      <details><summary>Terminal</summary>
+        <input id="cCmd" type="text" placeholder="G-code command, then Enter" autocomplete="off">
+        <pre id="cLog" style="max-height:160px"></pre>
+      </details>
+    </div>
+  </aside>
+</div>
+
+<!-- ============ MACHINE ============ -->
+<div class="tab" id="tab-machine">
+  <section>
+    <h2>Cut settings</h2>
+    <p class="hint" style="margin-top:0">This turns the current drawing into your machine file. Sizes come from the drawing units.</p>
+    <div style="margin-bottom:8px"><span class="hint" id="startInfo" style="display:block;margin:0 0 6px">Cut starts at the first point of the drawing. Use <b>Cut start</b> in the Draw tab to choose it.</span><button id="clearStart" disabled>Clear cut start</button></div>
+    <div class="row">
+      <div><label for="fitWidth">Fit to width (in)</label><input id="fitWidth" data-opt type="number" step="any" min="0" placeholder="e.g. 3.5"></div>
+      <div><label for="fitHeight">or height (in)</label><input id="fitHeight" data-opt type="number" step="any" min="0"></div>
+    </div>
+    <label for="rotate">Rotate the profile</label>
+    <select id="rotate" data-opt>
+      <option value="0">No rotation</option><option value="90">90° counter-clockwise</option>
+      <option value="180">180°</option><option value="270">90° clockwise</option>
+    </select>
+    <label class="check"><input id="reverse" data-opt type="checkbox"> Cut in the opposite direction</label>
+    <label class="check"><input id="mirrorX" data-opt type="checkbox"> Flip left to right</label>
+    <label class="check"><input id="mirrorY" data-opt type="checkbox"> Flip top to bottom</label>
+    <details>
+      <summary>Approach and exit moves</summary>
+      <p class="hint">Distance (inches) the wire travels to reach the profile start, and away from it at the end. Leave empty if the wire is already parked at the start point.</p>
+      <div class="row">
+        <div><label for="inX">Approach X</label><input id="inX" data-opt type="number" step="any"></div>
+        <div><label for="inY">Approach Y</label><input id="inY" data-opt type="number" step="any"></div>
+        <div><label for="outX">Exit X</label><input id="outX" data-opt type="number" step="any"></div>
+        <div><label for="outY">Exit Y</label><input id="outY" data-opt type="number" step="any"></div>
+      </div>
+    </details>
+    <details>
+      <summary>Advanced</summary>
+      <label for="tol">Join gaps up to (inches)</label>
+      <input id="tol" data-opt type="number" step="any" value="0.002">
+      <label for="curveTol">Curve accuracy (inches)</label>
+      <input id="curveTol" data-opt type="number" step="any" value="0.002">
+      <label for="scale">Extra scale factor</label>
+      <input id="scale" data-opt type="number" step="any" value="1">
+      <label for="decimals">Decimal places</label>
+      <input id="decimals" data-opt type="number" min="2" max="6" value="4">
+      <label class="check"><input id="allowMulti" data-opt type="checkbox"> Allow several separate paths</label>
+      <p class="hint">Off by default: this machine has no rapid move, so the wire would cut a straight line between separate shapes.</p>
+      <label for="header">File start (copied from BobCAD)</label>
+      <textarea id="header" data-opt rows="5"></textarea>
+      <label for="footer">File end (copied from BobCAD)</label>
+      <textarea id="footer" data-opt rows="3"></textarea>
+    </details>
+  </section>
+  <section>
+    <div class="actions">
+      <button id="dlTap" class="primary" disabled>Download .tap</button>
+      <button id="mcSend" class="primary" title="Writes the .tap into the machine folder (set it below the picture)">Send to machine</button>
+      <button id="copy" disabled>Copy G-code</button>
+      <button id="dlDxf">Save drawing as DXF</button>
+      <button id="printSheet">Print drawing sheet</button>
+      <button id="dlSheet">Download sheet (SVG)</button>
+    </div>
+    <div id="messages"></div>
+    <div id="stats"></div>
+    <div id="preview"></div>
+    <div class="legend"><i style="background:#2a9d8f"></i>start <i style="background:#e76f51"></i>end &nbsp; Line color goes blue to red in cutting order.</div>
+    <div class="msgBox" style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:12px 0">
+    <h2>Send to the machine</h2>
+      <p class="hint" style="margin-top:0">Your machine's DNC program watches one folder and lists what lands there on the pendant. Choose that folder once, then Send puts the .tap in it.</p>
+      <div id="mcFolder" class="hint"></div>
+      <div class="actions"><button id="mcPick">Choose folder...</button><button id="mcOpen" hidden>Open folder</button></div>
+      <div id="mcFiles" class="hint" style="margin-top:6px"></div>
+      <button id="msOpen" class="wide" style="margin-top:8px" title="Open the controller settings file from the old Machine Tools program, view and edit it, print a sheet">Machine settings (from the old Machine Tools)...</button>
+    </div>
+    <h2>G-code</h2>
+    <pre id="code"></pre>
+  </section>
+</div>
+<dialog id="histDlg"><h2 style="margin-top:0">Earlier versions</h2><div id="histList"></div><div class="actions" style="margin-top:12px"><button id="histClose">Close</button></div></dialog>
+<dialog id="help">
+  <h2 style="margin-top:0">Help</h2>
+  <input id="helpSearch" type="text" placeholder="What are you trying to do? (size, start point, trace, gaps, 3D...)" autocomplete="off">
+  <div id="helpList" class="helplist"></div>
+  <div id="helpArticle" class="article" hidden></div>
+  <details style="margin-top:12px"><summary>Mouse and keys</summary>
+    <ul class="small" style="padding-left:18px"><li>Left click: draw / select. Right-drag: move around. Wheel: zoom. Right click: cancel / finish.</li>
+    <li><b>V</b> select, <b>L</b> line, <b>R</b> rect, <b>C</b> circle, <b>A</b> arc, <b>U</b> curve, <b>T</b> trim, <b>E</b> extend, <b>B</b> break, <b>F</b> fillet, <b>H</b> chamfer, <b>M</b> move, <b>Y</b> copy, <b>O</b> rotate, <b>K</b> scale, <b>G</b> stretch, <b>I</b> mirror, <b>P</b> parallel, <b>D</b> measure, <b>S</b> cut start, <b>W</b> freehand, <b>X</b> delete point.</li>
+    <li>Ctrl+Z / Ctrl+Y undo and redo. Delete removes the selection. Shift keeps lines straight. F1 opens this window.</li>
+    <li>Type a number then Enter for exact sizes: <code>4&lt;90</code> is 4 long pointing up, <code>3,2</code> is 3 across and 2 up.</li></ul></details>
+  <p class="hint">Your drawing saves in this browser automatically. Use Save project to keep a file.</p>
+  <button id="helpClose" class="primary">Close</button>
+</dialog>
+<dialog id="welcome">
+  <h2 style="margin-top:0">What do you want to do?</h2>
+  <p class="hint" style="margin-top:0">Pick one and I'll walk you through it. You can always open Help from the top bar.</p>
+  <div class="welcomegrid">
+    <button data-go="dxf"><b>I have a DXF</b><span>Turn it into G-code (.tap)</span></button>
+    <button data-go="draw"><b>Draw a profile</b><span>Lines, arcs, curves, exact sizes</span></button>
+    <button data-go="pic"><b>I have a picture</b><span>Trace a photo or sketch</span></button>
+    <button data-go="model"><b>I have a 3D model</b><span>Get a 2D profile from it</span></button>
+  </div>
+  <button id="welcomeSkip" style="margin-top:14px">Skip, I'll look around</button>
+</dialog>
+<div id="tour" hidden><div id="tourTitle"></div><div id="tourText"></div><div class="tourbtns"><button id="tourBack">Back</button><button id="tourNext" class="primary">Next</button><button id="tourClose">Stop</button></div></div>
+<script>/*APP*/</script>
+</body>
+</html>

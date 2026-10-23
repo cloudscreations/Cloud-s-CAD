@@ -1,0 +1,15 @@
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import fs from 'node:fs';
+import { convert } from '../web/core.js';
+const c = new Client({ name: 't', version: '1' });
+await c.connect(new StdioClientTransport({ command: 'node', args: ['dist/clouds-cad-mcp.mjs'] }));
+const call = async (n, a) => { const r = await c.callTool({ name: n, arguments: a }); console.log(`--- ${n}${r.isError ? ' [ERROR]' : ''}\n` + r.content[0].text); };
+const ref = convert(fs.readFileSync('/tmp/clouds-cad/real_freecad.dxf','utf8')).tap;
+console.log('identical to engine:', ref === fs.readFileSync('/tmp/mcpt/a.tap','utf8'));
+const M='/tmp/clouds-cad/test_model.stl';
+await call('model_outline', { model_path: M, view: 'front', output_path: '/tmp/mcpt/f.dxf', longest_side: 6 });
+await call('model_slice', { model_path: M, height: 1, output_path: '/tmp/mcpt/sl.dxf', longest_side: 6 });
+await call('check_dxf', { dxf_path: '/tmp/mcpt/f.dxf' });
+await call('dxf_to_tap', { dxf_path: '/tmp/mcpt/f.dxf', output_path: '/tmp/mcpt/f.tap' });
+await c.close();

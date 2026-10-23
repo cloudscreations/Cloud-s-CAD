@@ -1,0 +1,10 @@
+import { toFraction, fmtLen } from './fmtlen.js';
+let fail = 0; const ok = (n, c, x = '') => { console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? '  ' + x : '')); if (!c) fail++; };
+ok('1.0625 -> 1-1/16"', toFraction(1.0625) === '1-1/16"', toFraction(1.0625));
+ok('3.625 -> 3-5/8"', toFraction(3.625) === '3-5/8"');
+ok('3.5 -> 3-1/2"', toFraction(3.5) === '3-1/2"');
+ok('0.3 has no clean fraction', toFraction(0.3) === null);
+ok('fmtLen adds fraction for inches', fmtLen(1.0625, 'in') === '1.0625 in (1-1/16")', fmtLen(1.0625, 'in'));
+ok('fmtLen plain for whole inches', fmtLen(4, 'in') === '4 in');
+ok('fmtLen no fraction for mm', fmtLen(1.0625, 'mm') === '1.0625 mm');
+console.log(fail ? `${fail} FAILED` : 'ALL FMT TESTS PASSED'); process.exit(fail ? 1 : 0);
