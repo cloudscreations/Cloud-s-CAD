@@ -8,11 +8,14 @@
     "test": "node test.mjs && node sketch.test.mjs && node trace.test.mjs && node mesh.test.mjs && node fmtlen.test.mjs && node sheet.test.mjs && node ui-test.mjs"
   },
   "dependencies": {
+    "@dimforge/rapier3d-compat": "0.21.0",
+    "@mlightcad/libredwg-web": "0.7.15",
     "buffer": "^6.0.3",
     "clipper-lib": "^6.4.2",
     "dxf-parser": "^1.1.2",
     "esbuild": "^0.28.2",
     "jsdom": "^29.1.1",
+    "manifold-3d": "3.4.1",
     "mdb-reader": "^3.2.0",
     "three": "^0.186.1",
     "three-bvh-csg": "^0.0.18",

@@ -48,6 +48,32 @@
   button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
   button:disabled { opacity: .4; cursor: not-allowed; }
   body:not([data-kind=dxf]) .dxfOnly, body[data-kind=dxf] .tapOnly { display: none; }
+  #canvasWrap { position: relative; }
+  .emptyHint { position: absolute; left: 50%; top: 42%; transform: translate(-50%,-50%); text-align: center; color: var(--muted, #8b93a1); display: flex; flex-direction: column; gap: 6px; font-size: 15px; max-width: 80%; background: var(--panel, #161b22); border: 1px solid var(--line, #2a313c); border-radius: 12px; padding: 16px 22px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+  .emptyHint { pointer-events: auto; }
+  .emptyHint button { position: absolute; top: 6px; right: 8px; background: transparent; border: 0; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 6px; }
+  .emptyHint button:hover { color: var(--ink); }
+  .emptyHint b { font-size: 20px; color: var(--accent); }
+  .emptyHint[hidden] { display: none; }
+  .sumBox { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; background: var(--panel2); }
+  #report .pill { display: none; }
+  .sumBox b { font-size: 17px; }
+  .sumBox .ok { color: #4fd18b; } .sumBox .bad { color: var(--warn-ink); }
+  .tabHint { padding: 6px 20px; font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--line); background: var(--panel); }
+  .pvRow { display: grid; grid-template-columns: 1fr; gap: 12px; align-items: start; }
+  @media (min-width: 1250px) { .pvRow:has(#sim:not([hidden])) { grid-template-columns: 1fr 1fr; } .pvRow .simBox { margin: 0; } }
+  .simBox { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 12px 0; }
+  .simBox h2 { margin: 0 0 8px; font-size: 16px; }
+  .simCv { width: 100%; height: auto; background: var(--code-bg); border-radius: 8px; display: block; }
+  .simRow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .simRow label { margin: 0 0 0 auto; display: flex; gap: 6px; align-items: center; }
+  .simScrub { width: 100%; }
+  .simInfo { margin-top: 6px; word-break: break-word; }
+  #banner { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); z-index: 30; max-width: min(720px, 92%); display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 10px; font-size: 15px; line-height: 1.4; box-shadow: 0 6px 24px rgba(0,0,0,.45); border: 1px solid transparent; }
+  #banner[hidden] { display: none; }
+  #banner.err { background: var(--err-bg); color: var(--err-ink); border-color: var(--err-ink); font-weight: 600; }
+  #banner.info { background: var(--info-bg); color: var(--info-ink); border-color: var(--info-ink); }
+  #banner button { background: transparent; border: 0; color: inherit; font-size: 20px; line-height: 1; cursor: pointer; padding: 0 2px; }
   .msg { padding: 9px 11px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; }
   .msg.err { background: var(--err-bg); color: var(--err-ink); font-weight: 600; }
   .msg.warn { background: var(--warn-bg); color: var(--warn-ink); }
@@ -66,6 +92,7 @@
   body { display: flex; flex-direction: column; min-height: 100vh; }
   header { gap: 10px; align-items: center; }
   header .sp { flex: 1; }
+  @media (max-width: 1500px) and (min-width: 801px) { header { padding: 10px 12px; gap: 6px; } header button { padding: 7px 8px !important; font-size: 14px !important; } header .tabs button { padding: 7px 8px !important; font-size: 13px !important; } header h1 { font-size: 17px; } header .moreMenu summary { padding: 6px 8px; } }
   .tabs { display: flex; gap: 4px; }
   .tabs button { border-radius: 8px 8px 0 0; }
   .tabs button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
@@ -76,6 +103,13 @@
   body[data-tab=print] #tab-print { display: grid; }
   body[data-tab=library] #tab-library { display: grid; }
   body[data-tab=model] #tab-model { display: grid; }
+  body[data-tab=sheet] #tab-sheet, body[data-tab=phys] #tab-phys { display: grid; }
+  #tab-sheet, #tab-phys { grid-template-columns: 1fr 330px; height: calc(100vh - 98px); }
+  .vbox { position: relative; min-height: 300px; background: var(--bg); } .vbox canvas { display: block; }
+  .vbox .readout { position: absolute; left: 10px; bottom: 10px; background: var(--panel, rgba(20,24,32,.85)); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 13px; max-width: 70%; }
+  #flatSvg { width: 100%; height: 90px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
+  .stepn { display:inline-block; width:20px; height:20px; line-height:20px; text-align:center; border-radius:50%; background:var(--accent); color:var(--accent-ink); font-size:12px; margin-right:6px; }
+  @media (max-width: 860px) { #tab-sheet, #tab-phys { grid-template-columns: 1fr; height: auto; } .vbox { height: 55vh; } }
   #tab-library { grid-template-columns: 330px 1fr; overflow: auto; }
   #libSide { padding: 14px; border-right: 1px solid var(--line); background: var(--panel); overflow: auto; }
   #libMain { padding: 14px; overflow: auto; }
@@ -228,6 +262,8 @@
   #cv .grip { fill: var(--cv-bg); stroke: #e76f51; stroke-width: 1.5; }
   #cv .dimline { stroke: #2a9d8f; stroke-width: 1.3; fill: none; stroke-dasharray: 4 3; }
   #cv .cpgrip { fill: var(--cv-bg); stroke: #2a9d8f; stroke-width: 2; }
+  #cv .pvline { stroke: #4fc3f7; stroke-width: 1.8; stroke-dasharray: 6 4; opacity: .9; }
+  #cv .pvblock { fill: rgba(79,195,247,.07); stroke: #4fc3f7; stroke-width: 1; stroke-dasharray: 2 4; }
   #cv .startmk { fill: #2a9d8f; stroke: var(--cv-bg); stroke-width: 2; }
   #cv .pt { fill: #2a9d8f; }
   #cv .openend { fill: none; stroke: #d62828; stroke-width: 2; }
@@ -288,6 +324,17 @@
   .tour-hl { outline: 3px solid var(--accent) !important; outline-offset: 3px; border-radius: 8px; animation: tourpulse 1.4s ease-in-out infinite; position: relative; z-index: 5; }
   @keyframes tourpulse { 0%,100% { box-shadow: 0 0 0 0 rgba(245,165,36,.55); } 50% { box-shadow: 0 0 0 10px rgba(245,165,36,0); } }
   @media (max-width: 700px) { .helplist, .welcomegrid { grid-template-columns: 1fr; } }
+  #hist .hrow{display:flex;flex-wrap:wrap;gap:4px;align-items:center;border:1px solid var(--line,#2a3342);border-radius:6px;padding:4px 6px;margin:4px 0;position:relative}
+  #hist .hrow.bad{border-color:#e5484d;background:rgba(229,72,77,.12)}
+  #hist .ht{font-weight:600;font-size:12px;width:100%}
+  #hist .hf{display:flex;gap:6px;flex-wrap:wrap}#hist .hf label{font-size:11px}#hist .hf input{width:84px}
+  #hist .hx{position:absolute;right:4px;top:2px;padding:0 6px}
+  .pcn{margin:3px 0}.pcn.ok{color:#2fa36b}.pcn.warn{color:#d98c00}.pcn.bad{color:#e5484d}
+  #sbMsg.err{color:#e5484d}
+  .moreMenu{position:relative;display:inline-block}.moreMenu summary{list-style:none;cursor:pointer;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--btn,transparent);user-select:none}.moreMenu summary::-webkit-details-marker{display:none}
+  .moreMenu .moreList{position:absolute;right:0;top:calc(100% + 4px);z-index:50;display:flex;flex-direction:column;gap:4px;padding:8px;background:var(--panel,#161b22);border:1px solid var(--line);border-radius:10px;min-width:170px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+  .moreMenu .moreList button{text-align:left;width:100%}
+  #tab-d3 aside.props details.tg{margin:8px 0;border:1px solid var(--line);border-radius:8px;padding:2px 8px}#tab-d3 aside.props details.tg summary{cursor:pointer;font-weight:600;padding:6px 0}
 </style>
 </head>
 <body data-tab="draw">
@@ -295,25 +342,32 @@
   <h1><span class="logo" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M7 14.5a3.5 3.5 0 0 1 .4-7 5 5 0 0 1 9.5 1.3A3 3 0 0 1 17 14.5Z" stroke="#e9edf3" stroke-width="1.5" stroke-linejoin="round"/><path d="M7.59,18.36L8.30,18.49L8.22,19.29L7.50,19.27L7.23,19.82L7.69,20.37L7.12,20.94L6.57,20.46L6.02,20.71L6.02,21.43L5.21,21.49L5.10,20.78L4.51,20.61L4.05,21.17L3.40,20.70L3.77,20.08L3.43,19.57L2.72,19.70L2.52,18.92L3.20,18.69L3.26,18.08L2.64,17.72L2.99,16.99L3.66,17.25L4.10,16.83L3.85,16.15L4.59,15.82L4.93,16.45L5.54,16.40L5.79,15.73L6.57,15.95L6.42,16.65L6.92,17.01L7.55,16.65L8.00,17.32L7.44,17.77ZM6.30,18.60A0.9,0.9 0 1 0 4.50,18.60A0.9,0.9 0 1 0 6.30,18.60Z" fill="#f5a524" fill-rule="evenodd" transform="translate(0,.9)"/><path d="M14.27,18.70L14.95,19.15L14.55,19.87L13.81,19.52L13.35,19.94L13.64,20.71L12.88,21.05L12.49,20.33L11.87,20.40L11.65,21.19L10.84,21.03L10.95,20.21L10.41,19.91L9.77,20.42L9.21,19.81L9.77,19.22L9.51,18.65L8.69,18.68L8.60,17.86L9.41,17.71L9.53,17.10L8.85,16.65L9.25,15.93L9.99,16.28L10.45,15.86L10.16,15.09L10.92,14.75L11.31,15.47L11.93,15.40L12.15,14.61L12.96,14.77L12.85,15.59L13.39,15.89L14.03,15.38L14.59,15.99L14.03,16.58L14.29,17.15L15.11,17.12L15.20,17.94L14.39,18.09ZM13.00,17.90A1.1,1.1 0 1 0 10.80,17.90A1.1,1.1 0 1 0 13.00,17.90Z" fill="#f5a524" fill-rule="evenodd" transform="translate(0,.9)"/><path d="M20.64,19.12L21.26,19.48L20.91,20.21L20.24,19.95L19.80,20.37L20.05,21.05L19.31,21.38L18.97,20.75L18.36,20.80L18.11,21.47L17.33,21.25L17.48,20.55L16.98,20.19L16.35,20.55L15.90,19.88L16.46,19.43L16.31,18.84L15.60,18.71L15.68,17.91L16.40,17.93L16.67,17.38L16.21,16.83L16.78,16.26L17.33,16.74L17.88,16.49L17.88,15.77L18.69,15.71L18.80,16.42L19.39,16.59L19.85,16.03L20.50,16.50L20.13,17.12L20.47,17.63L21.18,17.50L21.38,18.28L20.70,18.51ZM19.40,18.60A0.9,0.9 0 1 0 17.60,18.60A0.9,0.9 0 1 0 19.40,18.60Z" fill="#f5a524" fill-rule="evenodd" transform="translate(0,.9)"/></svg></span>Cloud's CAD</h1>
   <div class="tabs">
     <button data-tab="draw" class="on">Draw (2D)</button>
-    <button data-tab="d3">3D</button>
-    <button data-tab="model">3D Build</button>
+    <button data-tab="d3">3D Model</button>
+    <button data-tab="model">3D Shapes</button>
     <button data-tab="machine">Machine</button>
+    <button data-tab="sheet">Sheet metal</button>
+    <button data-tab="phys">Physics</button>
     <button data-tab="print">3D Print</button>
     <button data-tab="library">Library</button>
   </div>
   <button id="mobBtn" class="mobOnly" title="Switch back to the full desktop layout">Desktop view</button>
   <button id="toggle23" title="Switch between the 2D drawing and the 3D model">2D ⇄ 3D</button>
   <span class="sp"></span>
-  <button id="openBtn">Open file…</button>
-  <button id="addBtn" title="Bring another drawing (DXF, project, machine file) into this one, e.g. the second half of a molding">Add drawing…</button>
+  <button id="openBtn" title="Open a drawing (DWG, DXF), a saved project, a machine file or a 3D model. You can also drag a file onto the window.">Open file…</button>
+  <button id="cmdBtn" title="Search every command (shortcut: / or Ctrl+K)" aria-label="Search commands">⌕</button> <button id="topUndo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
+  <button id="topRedo" title="Redo (Ctrl+Y)" aria-label="Redo">↷</button>
   <button id="saveProj">Save project</button>
-  <button id="histBtn" title="Go back to an earlier version of your drawing (kept automatically)">History</button>
-  <button id="helpBtn" title="Shortcuts and how to use it">? Help</button>
-  <button id="themeBtn" title="Switch between dark and light">☀ Light</button>
-  <input id="addFile" type="file" accept=".dxf,.tap,.nc,.gcode,.txt,.cloudcad,.json" multiple hidden>
-  <input id="openFile" type="file" accept=".dxf,.tap,.nc,.gcode,.txt,.cloudcad,.json,.stl,.obj,.glb,.ply" hidden>
+  <details id="moreMenu" class="moreMenu"><summary>More ▾</summary><div class="moreList">
+    <button id="addBtn" title="Bring another drawing (DXF, project, machine file) into this one, e.g. the second half of a molding">Add drawing…</button>
+    <button id="histBtn" title="Go back to an earlier version of your drawing (kept automatically)">History</button>
+    <button id="helpBtn" title="Shortcuts and how to use it">? Help</button>
+    <button id="themeBtn" title="Switch between dark and light">☀ Light</button>
+  </div></details>
+  <input id="addFile" type="file" accept=".dxf,.dwg,.tap,.nc,.gcode,.txt,.cloudcad,.json" multiple hidden>
+  <input id="openFile" type="file" accept=".dxf,.dwg,.tap,.nc,.gcode,.txt,.cloudcad,.json,.stl,.obj,.glb,.ply" hidden>
   <span class="tagline">Free and open source (GPL v3). Runs on your computer; nothing is uploaded.</span>
 </header>
+<div id="tabHint" class="tabHint"></div>
 <div id="wsBar"></div>
 <div id="scrim"></div>
 
@@ -327,38 +381,65 @@
         <button id="selAll" title="Ctrl+A">All</button>
       </div>
     </details>
+    <details open class="tg"><summary>Foam cutting</summary>
+    <details class="sub"><summary>Nest several in a foam block</summary>
+      <label>Block width / height</label>
+      <div class="row"><div><input id="nW" type="number" step="any" value="48"></div><div><input id="nH" type="number" step="any" value="12"></div></div>
+      <label>Space between pieces / edge room</label>
+      <div class="row"><div><input id="nGap" type="number" step="any" value="0.5"></div><div><input id="nMargin" type="number" step="any" value="0.5"></div></div>
+      <label>Tether width (gap between the in and out lines)</label><input id="nTW" type="number" step="any" value="0.06">
+      <label>Tether height (% up from the bottom of the piece)</label><input id="nTP" type="number" step="1" min="1" max="95" value="25">
+      <label>How many (0 = as many as fit)</label><input id="nCount" type="number" step="1" min="0" value="0">
+      <label>Put the row on</label>
+      <select id="nSide"><option value="right">Right side of the center line</option><option value="left">Left side of the center line</option></select>
+      <label>Ends</label>
+      <select id="nLeads"><option value="both">Lead in left and out right (top half, then other half)</option><option value="right">One lead on the right (one pass)</option><option value="left">One lead on the left (one pass)</option><option value="none">No leads (one closed loop)</option></select>
+      <label class="check"><input id="nPair" type="checkbox"> Make a mirrored partner for each profile (left and right pairs)</label>
+      <label class="check"><input id="nFit" type="checkbox" checked> Turn the profile to fit the block height if needed</label>
+      <label class="check"><input id="nAlt" type="checkbox"> Turn every other piece upside down</label>
+      <label class="check"><input id="nPrev" type="checkbox"> Show a preview (blue) while I change the settings</label>
+      <button id="nestGo" class="wide" title="Lines the closed profiles up in a row inside the block and joins them with thin in-and-out tether lines">Nest and tether (selection or all)</button>
+    </details>
+        <details class="sub"><summary>Mirror a half + join, smooth</summary>
+      <label>Mirror the selection across its</label>
+      <select id="mjSide"><option value="right">right edge</option><option value="left">left edge</option><option value="top">top edge</option><option value="bottom">bottom edge</option></select>
+      <button id="mjGo" class="wide" title="Mirrors a half profile and joins the two halves into one outline">Mirror and join into one outline</button>
+      <label>Smooth strength (1 gentle to 10 strong)</label><input id="smStrength" type="number" min="1" max="10" step="1" value="3">
+      <button id="smGo" class="wide" title="Turns jagged traced lines into smooth curves and keeps sharp corners">Smooth traced lines (selection or all)</button>
+    </details>
+    </details>
     <details open class="tg"><summary>Lines</summary>
       <div class="tgrid">
         <button data-tool="line" title="L">Line</button>
         <button data-tool="curve" title="U">Curve</button>
         <button data-tool="freehand" title="W">Freehand</button>
-        <button data-tool="hline">Horizontal</button>
-        <button data-tool="vline">Vertical</button>
+        <button data-tool="hline" title="Horizontal line: click the start, then type its length">Horizontal</button>
+        <button data-tool="vline" title="Vertical line: click the start, then type its length">Vertical</button>
       </div>
       <details class="sub"><summary>More lines</summary>
         <div class="tgrid">
-          <button data-tool="perp">Right angle to</button>
-          <button data-tool="pthru">Parallel through point</button>
-          <button data-tool="bisector">Bisector</button>
-          <button data-tool="tanpc">Tangent from point</button>
-          <button data-tool="tancc">Tangent, 2 circles</button>
-          <button data-tool="divide">Divide into parts</button>
+          <button data-tool="perp" title="Line at 90 degrees to another line">Right angle to</button>
+          <button data-tool="pthru" title="Line through a point, parallel to another line">Parallel through point</button>
+          <button data-tool="bisector" title="Line that splits the angle between two lines">Bisector</button>
+          <button data-tool="tanpc" title="Line that touches a circle, from a point">Tangent from point</button>
+          <button data-tool="tancc" title="Line that touches two circles">Tangent, 2 circles</button>
+          <button data-tool="divide" title="Split a line or arc into equal parts">Divide into parts</button>
         </div>
       </details>
     </details>
     <details open class="tg"><summary>Shapes</summary>
       <div class="tgrid">
         <button data-tool="rect" title="R">Rectangle</button>
-        <button data-tool="rect3">Tilted rectangle</button>
+        <button data-tool="rect3" title="Rectangle from 3 corner points (any angle)">Tilted rectangle</button>
         <button data-tool="circle" title="C">Circle</button>
         <button data-tool="arc" title="A">Arc</button>
       </div>
       <details class="sub"><summary>More circles</summary>
         <div class="tgrid">
           <button data-tool="circR">Center + radius</button>
-          <button data-tool="circ2p">2 points (diameter)</button>
-          <button data-tool="circ3p">3 points</button>
-          <button data-tool="circ2pr">2 points + radius</button>
+          <button data-tool="circ2p" title="Circle from two points across its width">2 points (diameter)</button>
+          <button data-tool="circ3p" title="Circle through three points">3 points</button>
+          <button data-tool="circ2pr" title="Circle from two points and a radius">2 points + radius</button>
           <button data-tool="circIn">Inside 3 lines</button>
           <button data-tool="circArc">Arc to circle</button>
         </div>
@@ -374,8 +455,8 @@
           <button data-tool="polyCC">Polygon: center + corner</button>
           <button data-tool="polyCT">Polygon: center + side</button>
           <button data-tool="polyKK">Polygon: 2 corners</button>
-          <button data-tool="star">Star</button>
-          <button data-tool="ellipse">Ellipse</button>
+          <button data-tool="star" title="Star or polygon">Star</button>
+          <button data-tool="ellipse" title="Ellipse (oval)">Ellipse</button>
           <button data-tool="ellipseF">Ellipse from foci</button>
         </div>
       </details>
@@ -387,56 +468,44 @@
         <button data-tool="rotate" title="O">Rotate</button>
         <button data-tool="scale" title="K">Scale</button>
         <button data-tool="mirror" title="I">Mirror</button>
-        <button data-tool="stretch" title="G">Stretch</button>
         <button data-tool="trim" title="T">Trim</button>
         <button data-tool="extend" title="E">Extend</button>
-        <button data-tool="break" title="B">Break</button>
-        <button data-tool="delnode" title="X">Delete point</button>
-        <button id="explodeBtn" title="Circle into 2 arcs; curve into plain lines (needs a selection)">Explode</button>
         <button id="joinBtn" title="Close tiny gaps and merge straight pieces (uses the selection, or everything)">Join</button>
         <button id="revBtn" title="Flip the direction the wire travels on the selection (or everything)">Reverse</button>
         <button data-tool="offset" title="P">Parallel</button>
         <button data-tool="fillet" title="F">Fillet</button>
         <button data-tool="chamfer" title="H">Chamfer</button>
       </div>
-    <details class="sub"><summary>Mirror + join, smooth</summary>
-      <label>Mirror the selection across its</label>
-      <select id="mjSide"><option value="right">right edge</option><option value="left">left edge</option><option value="top">top edge</option><option value="bottom">bottom edge</option></select>
-      <button id="mjGo" class="wide" title="Mirrors a half profile and joins the two halves into one outline">Mirror and join into one outline</button>
-      <label>Smooth strength (1 gentle to 10 strong)</label><input id="smStrength" type="number" min="1" max="10" step="1" value="3">
-      <button id="smGo" class="wide" title="Turns jagged traced lines into smooth curves and keeps sharp corners">Smooth traced lines (selection or all)</button>
-    </details>
-    <details class="sub"><summary>Nest in a foam block</summary>
-      <label>Block width / height</label>
-      <div class="row"><div><input id="nW" type="number" step="any" value="48"></div><div><input id="nH" type="number" step="any" value="12"></div></div>
-      <label>Space between pieces / edge room</label>
-      <div class="row"><div><input id="nGap" type="number" step="any" value="0.5"></div><div><input id="nMargin" type="number" step="any" value="0.5"></div></div>
-      <label>Tether width (gap between the in and out lines)</label><input id="nTW" type="number" step="any" value="0.06">
-      <label>Tether height (% up from the bottom of the piece)</label><input id="nTP" type="number" step="1" min="1" max="95" value="25">
-      <label>How many (0 = as many as fit)</label><input id="nCount" type="number" step="1" min="0" value="0">
-      <label>Ends</label>
-      <select id="nLeads"><option value="both">Lead in left and out right (top half, then other half)</option><option value="right">One lead on the right (one pass)</option><option value="left">One lead on the left (one pass)</option><option value="none">No leads (one closed loop)</option></select>
-      <label class="check"><input id="nAlt" type="checkbox"> Turn every other piece upside down</label>
-      <button id="nestGo" class="wide" title="Lines the closed profiles up in a row inside the block and joins them with thin in-and-out tether lines">Nest and tether (selection or all)</button>
-    </details>
+      <details class="sub"><summary>More edit tools</summary>
+        <div class="tgrid">
+        <button data-tool="stretch" title="G">Stretch</button>
+        <button data-tool="break" title="B">Break</button>
+        <button data-tool="delnode" title="X">Delete point</button>
+        <button id="explodeBtn" title="Circle into 2 arcs; curve into plain lines (needs a selection)">Explode</button>
+        </div>
+      </details>
     </details>
     <details open class="tg"><summary>Info and cut</summary>
       <div class="tgrid">
         <button data-tool="measure" title="D">Measure</button>
         <button data-tool="dim" title="Leave a length dimension on the drawing">Dimension</button>
-        <button data-tool="dimAng" title="Leave an angle on the drawing">Angle</button>
-        <button data-tool="dimRad" title="Leave a radius on the drawing">Radius</button>
         <button id="infoBtn" title="Total cut length and area of the selection (or everything)">Length and area</button>
-        <button id="dimClear" title="Remove all dimensions you added">Clear dims</button>
         <button data-tool="calibAll" title="Click two points, type the real length, and everything is scaled to match">Calibrate</button>
         <button data-tool="start" title="S" class="cutstart">Cut start</button>
       </div>
+      <details class="sub"><summary>More measuring</summary>
+        <div class="tgrid">
+        <button data-tool="dimAng" title="Leave an angle on the drawing">Angle</button>
+        <button data-tool="dimRad" title="Leave a radius on the drawing">Radius</button>
+        <button id="dimClear" title="Remove all dimensions you added">Clear dims</button>
+        </div>
+      </details>
     </details>
-    <details open class="tg"><summary>Edit</summary>
+    <details class="tg"><summary>Undo, delete, fit view</summary>
       <div class="tgrid">
         <button id="undo" title="Ctrl+Z">Undo</button>
         <button id="redo" title="Ctrl+Y">Redo</button>
-        <button id="del" title="Delete">Delete</button>
+        <button id="del" title="Delete (Del, Backspace or Q)">Delete</button>
         <button id="fitView">Fit view</button>
       </div>
     </details>
@@ -446,9 +515,12 @@
     <div id="mobBar" class="mobOnly"><button id="mTools">☰ Tools</button><button id="mProps">⚙ Options</button></div>
     <div id="mobAct" class="mobOnly"><button id="mUndo">Undo</button><button id="mRedo">Redo</button><button id="mDel">Delete</button><button id="mDone">Done</button><button id="mFit">Fit</button></div>
     <div id="numrow"><input id="num" type="text" placeholder="type a size, press Enter" autocomplete="off"></div>
+    <div id="emptyHint" class="emptyHint"><button id="emptyX" title="Hide this (it stays hidden)" aria-label="Close">×</button><b>Start here</b><span>Drag a DWG or DXF file onto this window, or click <u>Open file…</u> at the top.</span><span>Or pick a tool on the left (Line, Rectangle, Circle) and draw.</span><span>New to this? Click <u>? Help</u>.</span></div>
+    <div id="banner" role="status" hidden><span id="bannerTxt"></span><button id="bannerX" title="Close">×</button></div>
     <div id="statusBar"><span id="hint"></span><span id="coords"></span></div>
   </div>
   <aside class="props">
+    <div id="sumBox" class="sumBox" hidden></div>
     <h3>Tool options</h3>
     <div data-for="fillet" hidden><label>Fillet radius</label><input id="filletR" type="number" step="any" value="0.25"></div>
     <div data-for="chamfer" hidden><label>Chamfer distance</label><input id="chamferD" type="number" step="any" value="0.25"></div>
@@ -545,14 +617,43 @@
     <h3>Model</h3>
     <div id="modelInfo" class="small hint">No model yet. Extrude your drawing, open a model file, or carve one from views.</div>
     <div class="row"><button id="viewFit">Reset view</button><button id="exportSTL" disabled>Export STL</button></div>
-    <button id="toBuild" class="wide" disabled title="Open this model in the 3D Build tab to cut, extrude and reshape it">Edit this model in 3D Build</button>
+    <button id="toBuild" class="wide" disabled title="Open this model in the 3D Shapes tab to cut, extrude and reshape it">Edit this model in 3D Shapes</button>
 
-    <h3>Extrude the drawing</h3>
+    <h3>Make a solid from the drawing</h3>
+    <p class="hint small">Pick how the outline becomes 3D. Every step is listed below, and you can change any number to rebuild.</p>
+    <div class="row"><select id="sbKind"><option value="extrude">Extrude (push up)</option><option value="revolve">Spin around the left edge</option><option value="sweep">Sweep along the open line</option><option value="loft">Loft: big outline to small</option></select><button id="sbGo" class="primary">Make</button></div>
+    <label class="check"><input id="exSel" type="checkbox"> Only use the lines I have selected in Draw</label>
+    <h3>Steps (change a number to rebuild)</h3>
+    <div id="hist"></div>
+    <div class="row"><select id="stKind"><option value="round">Round edges</option><option value="roundIn">Round inside corners</option><option value="chamfer">Chamfer edges</option><option value="shell">Hollow out</option><option value="cup">Hollow, open top</option><option value="offset">Grow or shrink (clearance)</option><option value="hole">Screw / round hole</option></select><button id="stAdd">Add step</button></div>
+    <div id="stScrewRow" class="row" hidden><select id="stScrew"><option>M2</option><option>M2_5</option><option selected>M3</option><option>M4</option><option>M5</option><option>M6</option><option>M8</option></select><label class="check"><input id="stTap" type="checkbox"> for threading (smaller)</label></div>
+    <div class="row"><button id="sbUndo" disabled>Undo last change</button><button id="cmbBtn" title="Join, cut or overlap with another model file">Combine with a file…</button></div>
+    <div class="row"><select id="cmbOp"><option value="add">Join</option><option value="subtract">Cut away</option><option value="intersect">Keep only the overlap</option></select></div>
+    <input id="cmbFile" type="file" accept=".stl,.obj,.glb,.ply" hidden>
+    <button id="sbCancel" class="wide" hidden>Stop (taking too long)</button>
+    <div id="sbMsg" class="small hint"></div>
+
+    <h3>Check it for 3D printing</h3>
+    <label>Thinnest wall to allow (mm)</label><input id="pcWall" type="number" step="any" value="1.2">
+    <button id="pcGo" class="wide">Check this model</button>
+    <div id="pcOut" class="small"></div>
+    <button id="pcFix" class="wide" title="Joins touching corners and turns inside-out faces around">Repair this model (seal it)</button>
+    <button id="pcBest" class="wide" disabled>Lay it the best way</button>
+    <p class="hint small">Red = too thin. Orange = overhang that needs supports.</p>
+
+    <h3>Fill the print bed</h3>
+    <div class="row"><div><label>Copies</label><input id="arN" type="number" min="1" value="1"></div><div><label>Gap (mm)</label><input id="arGap" type="number" value="5"></div></div>
+    <button id="arGo" class="wide">Arrange on the bed</button>
+    <div id="arMsg" class="small hint">Uses the bed size from the 3D Print tab. Separate pieces in one model are spread out too.</div>
+
+    <details class="tg"><summary>Quick extrude</summary>
     <label>Thickness (drawing units)</label><input id="exDepth" type="number" step="any" value="2">
     <button id="exGo" class="wide primary">Extrude closed outlines</button>
     <div id="exMsg" class="small hint"></div>
 
-    <h3>Open a 3D model</h3>
+    </details>
+
+    <details class="tg"><summary>Open a 3D model from a file</summary>
     <button id="openModel" class="wide">Choose STL / OBJ / GLB / PLY…</button>
     <input id="modelFile" type="file" accept=".stl,.obj,.glb,.ply" hidden>
     <div class="row"><div><label>Which way is up</label><select id="upAxis"><option value="z">Z (CAD)</option><option value="y">Y (most 3D apps)</option><option value="x">X</option></select></div>
@@ -560,21 +661,27 @@
     <button id="applyModel" class="wide" disabled>Apply up-axis and size</button>
     <p class="hint">Works with models from any generator or program (Modly and others) that can save STL, OBJ, GLB or PLY.</p>
 
-    <h3>Get a 2D profile from the model</h3>
+    </details>
+
+    <details class="tg"><summary>Get a 2D profile from the model</summary>
     <div class="row"><button data-sil="front">Front</button><button data-sil="side">Side</button><button data-sil="top">Top</button></div>
     <label>Or cut a slice at height (Z)</label>
     <input id="secZ" type="range" min="0" max="1" step="0.001" value="0.5"><div id="secVal" class="small hint"></div>
     <button id="secGo" class="wide" disabled>Slice into drawing</button>
     <label class="check"><input id="profReplace" type="checkbox" checked> Replace the current drawing</label>
 
-    <h3>Make 3D from views</h3>
+    </details>
+
+    <details class="tg"><summary>Make 3D from views (carve)</summary>
     <p class="hint small">Give 1 to 3 outlines. Each can be your drawing, a picture, or the current model. The shape is what fits all of them.</p>
     <div id="slots"></div>
     <div class="box2"><div><label>Width X</label><input id="cvW" type="number" step="any" value="4"></div><div><label>Depth Y</label><input id="cvD" type="number" step="any" value="4"></div><div><label>Height Z</label><input id="cvH" type="number" step="any" value="4"></div></div>
     <label>Detail</label><select id="cvN"><option value="64">Fast</option><option value="96" selected>Normal</option><option value="140">Fine</option></select>
     <button id="cvGo" class="wide primary">Carve</button>
     <div id="cvMsg" class="small hint"></div>
-  </aside>
+      </details>
+
+</aside>
 </div>
 
 
@@ -582,6 +689,43 @@
 <div class="tab" id="tab-model">
   <div data-m="view"><div id="noGL2" class="hint" style="padding:20px" hidden>3D needs WebGL, which this browser does not have.</div></div>
   <aside class="props" data-m="side"></aside>
+</div>
+
+<!-- ============ SHEET METAL ============ -->
+<div class="tab" id="tab-sheet">
+  <div class="vbox" id="shView"><div class="readout" id="shRead">Draw an open line in the Draw tab, then press Build.</div></div>
+  <aside class="props">
+    <h3><span class="stepn">1</span>Draw the shape</h3>
+    <p class="hint small">In the Draw tab, draw ONE open line for the side view of the part, running down the middle of the metal. An L bracket is two lines, a U channel is three. Corners become bends.</p>
+    <button id="shGet" class="wide primary">Use the line in my drawing</button>
+    <h3><span class="stepn">2</span>Metal</h3>
+    <div class="row"><div><label>Thickness (<span class="uName"></span>)</label><input id="shT" type="number" step="any" value="2"></div><div><label>Width (<span class="uName"></span>)</label><input id="shW" type="number" step="any" value="30"></div></div>
+    <div class="row"><div><label>Inside bend radius</label><input id="shR" type="number" step="any" value="2"></div><div><label>Material</label><select id="shK"><option value="0.33">Soft / mild steel (K 0.33)</option><option value="0.40">Aluminum (K 0.40)</option><option value="0.45">Stainless / hard (K 0.45)</option></select></div></div>
+    <p class="hint small">Not sure? Radius equal to thickness is a safe start.</p>
+    <h3><span class="stepn">3</span>Results</h3>
+    <div id="shOut" class="small"></div>
+    <svg id="flatSvg" viewBox="0 0 100 20" preserveAspectRatio="xMidYMid meet"></svg>
+    <button id="shFlat" class="wide" disabled>Send flat pattern to my drawing</button>
+    <button id="shSolid" class="wide" disabled>Use folded part as the 3D model</button>
+    <div id="shMsg" class="small hint"></div>
+  </aside>
+</div>
+
+<!-- ============ PHYSICS ============ -->
+<div class="tab" id="tab-phys">
+  <div class="vbox" id="phView"><div class="readout" id="phRead">Add something, then press Play.</div></div>
+  <aside class="props">
+    <h3><span class="stepn">1</span>What to drop</h3>
+    <div class="row"><button id="phModel" title="Your model from the 3D tab">My model</button><button id="phBox">Box</button><button id="phBall">Ball</button></div>
+    <div class="row"><div><label>Copies</label><input id="phN" type="number" min="1" max="40" value="1"></div><div><label>Drop height (<span class="uName"></span>)</label><input id="phH" type="number" step="any" value="100"></div></div>
+    <h3><span class="stepn">2</span>Conditions</h3>
+    <label>Slope of the floor: <span id="phTiltV">0</span>°</label><input id="phTilt" type="range" min="0" max="60" value="0">
+    <div class="row"><div><label>Grip (friction)</label><input id="phFric" type="range" min="0" max="100" value="50"></div><div><label>Bounce</label><input id="phBounce" type="range" min="0" max="100" value="20"></div></div>
+    <h3><span class="stepn">3</span>Run it</h3>
+    <div class="row"><button id="phPlay" class="primary">Play</button><button id="phReset">Reset</button></div>
+    <label class="check"><input id="phSlow" type="checkbox"> Slow motion</label>
+    <div id="phMsg" class="small hint">Tip: tilt the floor to see if a part slides or tips. Parts are treated as solid, with convex shapes (a bowl behaves like a block).</div>
+  </aside>
 </div>
 
 <!-- ============ 3D PRINT ============ -->
@@ -760,15 +904,33 @@
     </div>
     <div id="messages"></div>
     <div id="stats"></div>
-    <div id="preview"></div>
+    <div class="pvRow"><div id="preview"></div>
+    <div id="sim" class="simBox" hidden></div></div>
     <div class="legend"><i style="background:#2a9d8f"></i>start <i style="background:#e76f51"></i>end &nbsp; Line color goes blue to red in cutting order.</div>
     <div class="msgBox" style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:12px 0">
     <h2>Send to the machine</h2>
-      <p class="hint" style="margin-top:0">Your machine's DNC program watches one folder and lists what lands there on the pendant. Choose that folder once, then Send puts the .tap in it.</p>
       <div id="mcFolder" class="hint"></div>
+      <details class="sub" id="mcSetup"><summary>Machine setup: folder, connection test, settings</summary>
+      <p class="hint" style="margin-top:0">Your machine's DNC program watches one folder and lists what lands there on the pendant. Choose that folder once, then Send puts the .tap in it.</p>
       <div class="actions"><button id="mcPick">Choose folder...</button><button id="mcOpen" hidden>Open folder</button></div>
       <div id="mcFiles" class="hint" style="margin-top:6px"></div>
+      <details class="sub" style="margin-top:8px"><summary>Test the connection to the machine</summary>
+        <p class="hint" style="margin-top:6px">Plug your computer straight into the machine (or through a small switch), set this computer's network address to 192.168.50.1 (mask 255.255.255.0, no gateway), close the old program, then press Test. It only looks: it pings the machine and tries to open a few doors, and sends nothing. Desktop app only.</p>
+        <label for="mtIp">Machine address</label>
+        <input id="mtIp" type="text" value="192.168.50.2" inputmode="decimal" autocomplete="off">
+        <label for="mtPorts">Doors (ports) to check</label>
+        <input id="mtPorts" type="text" value="23, 29" autocomplete="off">
+        <label class="check"><input id="mt99" type="checkbox"> Also try door 99 (this clears a connection another PC left open, so only if the old PC is off)</label>
+        <button id="mtGo" class="wide">Test connection</button>
+        <div id="mtOut" class="hint" style="margin-top:6px"></div>
+        <p class="hint" style="margin-top:12px"><b>Listen while you use the pedestal.</b> This connects to the machine and writes down everything it says. It sends nothing. Press Listen, then go to the pedestal and open your CODE folder and load one small program (do not start a cut). Come back and press Stop, or wait for the time to run out.</p>
+        <label for="mlSecs">How long to listen (seconds)</label>
+        <input id="mlSecs" type="text" value="180" inputmode="numeric" autocomplete="off">
+        <div class="actions"><button id="mlGo" class="wide">Listen</button><button id="mlStop" class="wide" disabled>Stop</button></div>
+        <div id="mlOut" class="hint" style="margin-top:6px"></div>
+      </details>
       <button id="msOpen" class="wide" style="margin-top:8px" title="Open the controller settings file from the old Machine Tools program, view and edit it, print a sheet">Machine settings (from the old Machine Tools)...</button>
+      </details>
     </div>
     <h2>G-code</h2>
     <pre id="code"></pre>
@@ -783,7 +945,7 @@
   <details style="margin-top:12px"><summary>Mouse and keys</summary>
     <ul class="small" style="padding-left:18px"><li>Left click: draw / select. Right-drag: move around. Wheel: zoom. Right click: cancel / finish.</li>
     <li><b>V</b> select, <b>L</b> line, <b>R</b> rect, <b>C</b> circle, <b>A</b> arc, <b>U</b> curve, <b>T</b> trim, <b>E</b> extend, <b>B</b> break, <b>F</b> fillet, <b>H</b> chamfer, <b>M</b> move, <b>Y</b> copy, <b>O</b> rotate, <b>K</b> scale, <b>G</b> stretch, <b>I</b> mirror, <b>P</b> parallel, <b>D</b> measure, <b>S</b> cut start, <b>W</b> freehand, <b>X</b> delete point.</li>
-    <li>Ctrl+Z / Ctrl+Y undo and redo. Delete removes the selection. Shift keeps lines straight. F1 opens this window.</li>
+    <li>Ctrl+Z / Ctrl+Y undo and redo. Delete, Backspace or Q removes the selection. Shift keeps lines straight. F1 opens this window.</li>
     <li>Type a number then Enter for exact sizes: <code>4&lt;90</code> is 4 long pointing up, <code>3,2</code> is 3 across and 2 up.</li></ul></details>
   <p class="hint">Your drawing saves in this browser automatically. Use Save project to keep a file.</p>
   <button id="helpClose" class="primary">Close</button>
@@ -800,6 +962,6 @@
   <button id="welcomeSkip" style="margin-top:14px">Skip, I'll look around</button>
 </dialog>
 <div id="tour" hidden><div id="tourTitle"></div><div id="tourText"></div><div class="tourbtns"><button id="tourBack">Back</button><button id="tourNext" class="primary">Next</button><button id="tourClose">Stop</button></div></div>
-<script>/*APP*/</script>
+<!--DWGWASM--><script>/*APP*/</script>
 </body>
 </html>

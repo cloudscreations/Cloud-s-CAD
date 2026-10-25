@@ -81,6 +81,24 @@ export function outlinesOf(ents, tol = 0.003) {
 }
 const boxOf = (segs) => S.bbox(S.fromSegments(segs));
 
+// Turn every outline by the same angle (about its own centre of the group) to the angle that makes the group shortest. Returns { outlines, deg, h }.
+export function rotateToFit(outlines, H) {
+  const rot = (segs, r, c) => { const co = Math.cos(r), si = Math.sin(r); const f = (p) => [c[0] + (p[0] - c[0]) * co - (p[1] - c[1]) * si, c[1] + (p[0] - c[0]) * si + (p[1] - c[1]) * co]; return segs.map((s) => mapSeg(s, f)); };
+  const all = boxOf(outlines.flat()), c = [all.x0 + all.w / 2, all.y0 + all.h / 2];
+  const hAt = (deg) => boxOf(outlines.flatMap((o) => rot(o, (deg * Math.PI) / 180, c))).h;
+  if (hAt(0) <= H + 1e-9) return { outlines, deg: 0, h: hAt(0) };
+  let best = 0, bh = Infinity;
+  for (let d = 0; d < 180; d += 0.5) { const h = hAt(d); if (h < bh - 1e-9) { bh = h; best = d; } }
+  if (bh > H + 1e-9) return { outlines, deg: 0, h: bh, fail: true };
+  return { outlines: outlines.map((o) => rot(o, (best * Math.PI) / 180, c)), deg: best, h: bh };
+}
+
+// Mirror every outline left-to-right (x -> -x), so a profile gets its left/right partner. Returns outlines in the same chain order.
+export function mirrorOutlines(outlines) {
+  const f = (p) => [-p[0], p[1]];
+  return outlines.map((o) => o.map((s) => (s.t === 'L' ? { t: 'L', a: f(s.a), b: f(s.b) } : { t: 'A', a: f(s.a), b: f(s.b), c: f(s.c), ccw: !s.ccw })));
+}
+
 // opts: W, H (block), gap (between pieces), margin (left/right lead room), tetherW, tetherPct (height of the neck above the piece bottom, % of tallest),
 //       count (0 = as many as fit), alternate (turn every other piece 180 deg), leads: 'both' | 'right' | 'left' | 'none'
 export function nestRow(outlines, o) {
@@ -92,7 +110,7 @@ export function nestRow(outlines, o) {
   // how many fit
   let n = o.count > 0 ? o.count : 0;
   const widthFor = (k) => { let w = 2 * margin + gap * (k - 1); for (let i = 0; i < k; i++) w += base[i % base.length].box.w; return w; };
-  if (!n) { n = 1; while (widthFor(n + 1) <= W + 1e-9 && n < 200) n++; }
+  if (!n) { n = 1; while (widthFor(n + 1) <= W + 1e-9 && n < 200) n++; if (o.even && n > 2 && n % 2) n--; }
   if (widthFor(n) > W + 1e-9) return { error: `${n} piece${n === 1 ? '' : 's'} need ${widthFor(n).toFixed(2)} of width but the block is ${W} wide.` };
   if (n === 1 && leads === 'both') return { error: 'One piece alone has nothing to tether to. Use leads on one end, or add more pieces.' };
 

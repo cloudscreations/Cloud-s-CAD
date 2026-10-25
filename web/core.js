@@ -69,15 +69,25 @@ function splinePoints(e) {
 
 const QUIET = new Set(['TEXT', 'MTEXT', 'DIMENSION', 'POINT', 'LEADER', 'ATTDEF', 'ATTRIB']);
 
+function xfSeg(s, m) {
+  const P = (p) => [m.c * p[0] * m.sx - m.s * p[1] * m.sy + m.x, m.s * p[0] * m.sx + m.c * p[1] * m.sy + m.x0];
+  const o = { ...s, a: P(s.a), b: P(s.b) };
+  if (s.c) o.c = P(s.c);
+  if (s.t === 'A' && m.sx * m.sy < 0) o.ccw = !s.ccw;
+  return o;
+}
+
 export function readDxf(text) {
   const dxf = new DxfParser().parseSync(text);
-  const segs = [];
   const warnings = [];
   const ignored = {};
-  let splines = 0;
-  const add = (s) => s && segs.push(s);
+  const ctr = { splines: 0 };
+  const blocks = dxf.blocks || {};
 
-  for (const e of dxf.entities || []) {
+  function walk(list, depth) {
+    const segs = [];
+    const add = (s) => s && segs.push(s);
+    for (const e of list || []) {
     switch (e.type) {
       case 'LINE':
         add({ t: 'L', a: [e.vertices[0].x, e.vertices[0].y], b: [e.vertices[1].x, e.vertices[1].y] });
@@ -110,16 +120,54 @@ export function readDxf(text) {
       }
       case 'SPLINE': {
         const pts = splinePoints(e);
-        splines++;
-        for (let i = 0; i + 1 < pts.length; i++) add({ t: 'L', a: pts[i], b: pts[i + 1], sp: splines });
+        ctr.splines++;
+        for (let i = 0; i + 1 < pts.length; i++) add({ t: 'L', a: pts[i], b: pts[i + 1], sp: ctr.splines });
+        break;
+      }
+      case 'ELLIPSE': {
+        const c = [e.center.x, e.center.y], mx = e.majorAxisEndPoint.x, my = e.majorAxisEndPoint.y, q = e.axisRatio || 1;
+        let a0 = e.startAngle || 0, a1 = e.endAngle == null ? Math.PI * 2 : e.endAngle;
+        if (a1 <= a0) a1 += Math.PI * 2;
+        const N = Math.max(24, Math.ceil(((a1 - a0) / (Math.PI * 2)) * 96));
+        ctr.splines++;
+        let prev = null;
+        for (let i = 0; i <= N; i++) {
+          const t = a0 + ((a1 - a0) * i) / N, ct = Math.cos(t), st = Math.sin(t);
+          const p = [c[0] + mx * ct - my * q * st, c[1] + my * ct + mx * q * st];
+          if (prev) add({ t: 'L', a: prev, b: p, sp: ctr.splines });
+          prev = p;
+        }
+        break;
+      }
+      case 'INSERT': {
+        const blk = blocks[e.name];
+        if (!blk || depth > 8 || /^\*[DdUu]/.test(e.name)) { ignored.INSERT = (ignored.INSERT || 0) + (blk ? 0 : 1); break; }
+        const inner = walk(blk.entities, depth + 1);
+        const rot = ((e.rotation || 0) * Math.PI) / 180;
+        const bp = blk.position || { x: 0, y: 0 };
+        const sx = e.xScale == null ? 1 : e.xScale, sy = e.yScale == null ? 1 : e.yScale;
+        const base = { c: Math.cos(rot), s: Math.sin(rot), sx, sy, x: 0, x0: 0 };
+        const p0 = xfSeg({ t: 'L', a: [-bp.x, -bp.y], b: [0, 0] }, base).a;
+        const m = { ...base, x: (e.position ? e.position.x : 0) + p0[0], x0: (e.position ? e.position.y : 0) + p0[1] };
+        const cols = Math.max(1, e.columnCount || 1), rows = Math.max(1, e.rowCount || 1);
+        for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+          const mm = { ...m };
+          const dx = c * (e.columnSpacing || 0), dy = r * (e.rowSpacing || 0);
+          mm.x += base.c * dx - base.s * dy; mm.x0 += base.s * dx + base.c * dy;
+          for (const s of inner) segs.push(xfSeg(s, mm));
+        }
         break;
       }
       default:
         ignored[e.type] = (ignored[e.type] || 0) + 1;
     }
+    }
+    return segs;
   }
+  const segs = walk(dxf.entities, 0);
+  const splines = ctr.splines;
   for (const [type, n] of Object.entries(ignored)) {
-    if (!QUIET.has(type)) {
+    if (n && !QUIET.has(type)) {
       warnings.push(`Skipped ${n} ${type} item(s). Geometry of this kind is NOT in the output. Explode or redraw it as lines/arcs.`);
     }
   }
@@ -320,7 +368,9 @@ export function parseTap(text) {
   const segs = [];
   const codes = {};
   const WORD = /([A-Za-z])\s*(-?\d*\.?\d*)/g;
-  for (const raw of text.split(/\r?\n/)) {
+  const rawLines = text.split(/\r?\n/);
+  for (let ln = 0; ln < rawLines.length; ln++) {
+    const raw = rawLines[ln];
     const line = raw.split(';')[0].split('(')[0].trim();
     if (!line) continue;
     const words = {};
@@ -349,8 +399,8 @@ export function parseTap(text) {
       ? [pos[0] + (words.X || 0), pos[1] + (words.Y || 0)]
       : ['X' in words ? words.X : pos[0], 'Y' in words ? words.Y : pos[1]];
     if ((move === 'G02' || move === 'G03') && ('I' in words || 'J' in words)) {
-      segs.push({ t: 'A', a: pos, b: end, c: [pos[0] + (words.I || 0), pos[1] + (words.J || 0)], ccw: move === 'G03', code: move });
-    } else segs.push({ t: 'L', a: pos, b: end, code: move });
+      segs.push({ t: 'A', a: pos, b: end, c: [pos[0] + (words.I || 0), pos[1] + (words.J || 0)], ccw: move === 'G03', code: move, ln });
+    } else segs.push({ t: 'L', a: pos, b: end, code: move, ln });
     pos = end;
   }
   return { segs, codes, relative, end: pos };

@@ -1,8 +1,10 @@
-// Cloud's CAD desktop shell (GPL v3). Loads the same offline app; nothing is sent over the network.
+// Cloud's CAD desktop shell (GPL v3). Loads the same offline app. The only network use is the optional Machine tab connection test (ping + opening a port, no data sent) to a private address.
 // Extra over the browser version: saves (.tap, .dxf, ...) go straight into a save folder you choose.
 const { app, BrowserWindow, Menu, shell, session, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const net = require('net');
+const { execFile } = require('child_process');
 
 const cfgFile = () => path.join(app.getPath('userData'), 'settings.json');
 const loadCfg = () => { try { return JSON.parse(fs.readFileSync(cfgFile(), 'utf8')); } catch { return {}; } };
@@ -116,6 +118,18 @@ ipcMain.handle('cura-run', (e, stl, settings) => new Promise((resolve) => {
 }));
 ipcMain.handle('cura-cancel', () => { const p = curaProc; if (p) { curaProc = null; try { p.kill(); } catch {} } return true; });
 
+// A file given on the command line (double-click / Open with / drag onto the exe) opens straight in the app
+const OPEN_EXT = /\.(dwg|dxf|tap|nc|gcode|txt|cloudcad|json|stl|obj|glb|ply)$/i;
+let pendingOpen = null, mainWin = null;
+function fileFromArgs(argv) {
+  for (const a of (argv || []).slice(1)) {
+    if (!a || a.startsWith('-') || !OPEN_EXT.test(a)) continue;
+    try { const st = fs.statSync(a); if (st.isFile() && st.size < 400 * 1024 * 1024) return { name: path.basename(a), bytes: new Uint8Array(fs.readFileSync(a)) }; } catch {}
+  }
+  return null;
+}
+pendingOpen = fileFromArgs(process.argv);
+ipcMain.handle('open-pending', () => { const p = pendingOpen; pendingOpen = null; return p; });
 if (!app.requestSingleInstanceLock()) { app.quit(); } else app.whenReady().then(() => {
   cfg = loadCfg();
   const ses = session.defaultSession;
@@ -139,7 +153,8 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else app.whenReady().then(
   let wt = null;
   const keepBounds = () => { clearTimeout(wt); wt = setTimeout(() => { if (win.isDestroyed() || win.isMinimized()) return; const max = win.isMaximized(); const b = max ? (cfg.win || {}) : win.getBounds(); cfg.win = { x: b.x, y: b.y, w: b.width ?? b.w, h: b.height ?? b.h, max }; saveCfg(cfg); }, 500); };
   win.on('resize', keepBounds); win.on('move', keepBounds); win.on('close', () => { clearTimeout(wt); if (!win.isMinimized()) { const max = win.isMaximized(); const b = max ? (cfg.win || {}) : win.getBounds(); cfg.win = { x: b.x, y: b.y, w: b.width ?? b.w, h: b.height ?? b.h, max }; saveCfg(cfg); } });
-  app.on('second-instance', () => { if (win.isMinimized()) win.restore(); win.focus(); });
+  mainWin = win;
+  app.on('second-instance', (_e, argv) => { if (win.isMinimized()) win.restore(); win.focus(); const f = fileFromArgs(argv); if (f) win.webContents.send('open-file', f.name, f.bytes); });
 
   ipcMain.handle('save-file', async (_e, name, bytes) => {
     if (!usable(cfg.saveDir)) return false;      // no folder chosen: the app falls back to the normal Save prompt
@@ -171,6 +186,88 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else app.whenReady().then(
     if (fs.existsSync(p)) { if (!mode) return { exists: true, name: base + '.tap' }; if (mode === 'new') { let n = 2; while (fs.existsSync(path.join(dir, `${base} ${n}.tap`))) n++; p = path.join(dir, `${base} ${n}.tap`); } }
     try { fs.writeFileSync(p, String(text)); } catch (e) { return { error: 'Could not write there: ' + e.message }; }
     return { ok: true, name: path.basename(p), dir };
+  });
+  // Machine connection test: ping and try to open a few ports on a private address. Sends no data.
+  ipcMain.handle('machine-probe', async (_e, ip, wantPorts) => {
+    const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(String(ip || '').trim());
+    if (!m) return { error: 'That is not an IP address like 192.168.50.2.' };
+    const o = m.slice(1).map(Number);
+    if (o.some((n) => n > 255)) return { error: 'Each part of an IP address is 0 to 255.' };
+    const priv = o[0] === 10 || (o[0] === 172 && o[1] >= 16 && o[1] <= 31) || (o[0] === 192 && o[1] === 168);
+    if (!priv) return { error: 'For safety this test only talks to local network addresses (192.168..., 10..., 172.16...).' };
+    const addr = o.join('.');
+        const ports = (Array.isArray(wantPorts) ? wantPorts : []).map(Number).filter((p) => Number.isInteger(p) && p >= 1 && p <= 65535).slice(0, 8);
+    const ping = await new Promise((res) => {
+      const args = process.platform === 'win32' ? ['-n', '2', '-w', '1000', addr] : ['-c', '2', '-W', '1', addr];
+      execFile('ping', args, { timeout: 8000, windowsHide: true }, (err, out) => res(!err && /ttl=/i.test(String(out))));
+    });
+    const tryPort = (port) => new Promise((res) => {
+      const s = net.createConnection({ host: addr, port });
+      let done = false;
+      const end = (r) => { if (done) return; done = true; try { s.destroy(); } catch {} res({ port, ...r }); };
+      s.setTimeout(2000);
+      // Listen only: after connecting, wait ~2s and report anything the machine says by itself. We never send a byte.
+      s.on('connect', () => {
+        const chunks = []; let n = 0;
+        s.setTimeout(0);
+        s.on('data', (d) => { if (n < 256) { chunks.push(d); n += d.length; } });
+        s.on('close', () => end({ open: true, hello: Buffer.concat(chunks).subarray(0, 256).toString('hex') }));
+        setTimeout(() => end({ open: true, hello: Buffer.concat(chunks).subarray(0, 256).toString('hex') }), 2000);
+      });
+      s.on('timeout', () => end({ open: false, why: 'no answer' }));
+      s.on('error', (e) => end({ open: false, why: e.code === 'ECONNREFUSED' ? 'refused' : (e.code || 'error') }));
+    });
+    const results = [];
+    for (const p of ports) results.push(await tryPort(p));
+    return { addr, ping, results };
+  });
+
+  // Listen-only recorder: connects to the machine's ports and writes down everything the machine sends. We never send a byte.
+  let listenStop = null;
+  ipcMain.handle('machine-listen-stop', () => { if (listenStop) listenStop(); return true; });
+  ipcMain.handle('machine-listen', async (_e, ip, wantPorts, wantSeconds) => {
+    const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(String(ip || '').trim());
+    if (!m) return { error: 'That is not an IP address like 192.168.50.2.' };
+    const o = m.slice(1).map(Number);
+    if (o.some((n) => n > 255)) return { error: 'Each part of an IP address is 0 to 255.' };
+    const priv = o[0] === 10 || (o[0] === 172 && o[1] >= 16 && o[1] <= 31) || (o[0] === 192 && o[1] === 168);
+    if (!priv) return { error: 'For safety this only talks to local network addresses (192.168..., 10..., 172.16...).' };
+    if (listenStop) return { error: 'Already listening. Press Stop first.' };
+    const addr = o.join('.');
+    const ports = (Array.isArray(wantPorts) ? wantPorts : []).map(Number).filter((p) => Number.isInteger(p) && p >= 1 && p <= 65535).slice(0, 4);
+    if (!ports.length) return { error: 'Type at least one door number, like 23, 29.' };
+    const secs = Math.max(5, Math.min(600, Math.round(Number(wantSeconds) || 120)));
+    const t0 = Date.now();
+    const events = [];
+    const note = (port, kind, extra) => events.push({ t: +((Date.now() - t0) / 1000).toFixed(2), port, kind, ...extra });
+    const socks = [];
+    const printable = (b) => Array.from(b).map((c) => (c >= 32 && c < 127 ? String.fromCharCode(c) : c === 10 ? '\\n' : c === 13 ? '\\r' : '.')).join('');
+    await new Promise((resolve) => {
+      let finished = false;
+      const finish = () => { if (finished) return; finished = true; for (const s of socks) { try { s.destroy(); } catch {} } listenStop = null; resolve(); };
+      listenStop = finish;
+      const timer = setTimeout(finish, secs * 1000);
+      for (const port of ports) {
+        const s = net.createConnection({ host: addr, port });
+        socks.push(s);
+        s.setTimeout(8000, () => { if (!s.connecting) return; note(port, 'no answer'); s.destroy(); });
+        s.on('connect', () => { s.setTimeout(0); note(port, 'connected'); });
+        s.on('data', (d) => note(port, 'received', { bytes: d.length, hex: d.subarray(0, 4096).toString('hex'), text: printable(d.subarray(0, 4096)) }));
+        s.on('close', () => note(port, 'closed'));
+        s.on('error', (e) => note(port, 'error', { why: e.code || String(e.message) }));
+      }
+      setTimeout(() => { if (socks.every((s) => s.destroyed)) { clearTimeout(timer); finish(); } }, 9000);
+    });
+    const lines = [`Cloud's CAD listen log. Machine ${addr}, doors ${ports.join(', ')}, ${secs}s. Nothing was sent to the machine.`, `Started ${new Date(t0).toString()}`, ''];
+    for (const e of events) lines.push(`${String(e.t).padStart(7)}s  door ${e.port}  ${e.kind}${e.why ? ' (' + e.why + ')' : ''}${e.bytes ? ` ${e.bytes} bytes\n         hex:  ${e.hex}\n         text: ${e.text}` : ''}`);
+    let file = null;
+    try {
+      const stamp = new Date(t0).toISOString().replace(/[:T]/g, '-').slice(0, 19);
+      file = path.join(app.getPath('documents'), `CloudsCAD-machine-log-${stamp}.txt`);
+      fs.writeFileSync(file, lines.join('\r\n') + '\r\n');
+      shell.showItemInFolder(file);
+    } catch { file = null; }
+    return { addr, events, file, log: lines.join('\n') };
   });
   ipcMain.handle('machine-open', () => { const d = machineDir(); if (d) shell.openPath(d); return !!d; });
 

@@ -270,6 +270,30 @@ export function loopsFromEnts(ents, tol = 1e-3, closeTol = tol * 5) {
   return { loops, open };
 }
 
+// Splits closed loops into outer pieces with their holes and triangulates the flat faces.
+// Returns [{ rings: [outerRing, ...holeRings] (outer counter-clockwise, holes clockwise), faces: [[A,B,C], ...] (counter-clockwise points) }]
+export function planarRegions(loops) {
+  if (!loops.length) return [];
+  const info = classifyLoops(loops).map((c) => ({ ...c, pts: c.hole === (signedArea(c.loop) > 0) ? c.loop.slice().reverse() : c.loop }));
+  const outers = info.filter((c) => !c.hole), holes = info.filter((c) => c.hole);
+  const contains = (poly, p) => classifyLoops([poly, [p, [p[0] + 1e-9, p[1]], [p[0], p[1] + 1e-9]]])[1].hole;
+  const out = [];
+  for (const o of outers) {
+    const myHoles = holes.filter((h) => contains(o.pts, h.pts[0]) && !outers.some((o2) => o2 !== o && o2.area < o.area && o2.area > h.area && contains(o2.pts, h.pts[0])));
+    const contour = o.pts.map((p) => new THREE.Vector2(p[0], p[1]));
+    const holeV = myHoles.map((h) => h.pts.map((p) => new THREE.Vector2(p[0], p[1])));
+    const all = contour.concat(...holeV);
+    const faces = [];
+    for (const f of THREE.ShapeUtils.triangulateShape(contour, holeV)) {
+      const [a, b, c] = f.map((i) => all[i]);
+      const cr = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+      faces.push(cr > 0 ? [[a.x, a.y], [b.x, b.y], [c.x, c.y]] : [[a.x, a.y], [c.x, c.y], [b.x, b.y]]);
+    }
+    out.push({ rings: [o.pts, ...myHoles.map((h) => h.pts)], faces });
+  }
+  return out;
+}
+
 export function extrudeLoops(loops, depth) {
   if (!loops.length || !(depth > 0)) return new Float32Array(0);
   const info = classifyLoops(loops).map((c) => ({ ...c, pts: c.hole === (signedArea(c.loop) > 0) ? c.loop.slice().reverse() : c.loop }));
@@ -302,4 +326,18 @@ export function extrudeLoops(loops, depth) {
     }
   }
   return new Float32Array(out);
+}
+
+// Open (not closed) connected lines and curves, as lists of points. Used as the path for sweeping.
+export function openChains(ents, tol = 1e-3, closeTol = tol * 5) {
+  const out = [];
+  for (const c of chain(toSegments(ents), tol)) {
+    const first = c[0].a, last = c[c.length - 1].b;
+    if (c.length >= 2 && Math.hypot(first[0] - last[0], first[1] - last[1]) <= closeTol * 1.0001) continue;
+    const pts = [];
+    for (const s of c) pts.push(...flatten(s, 4).slice(0, -1));
+    pts.push(last);
+    if (pts.length >= 2) out.push(pts);
+  }
+  return out.sort((a, b) => b.length - a.length);
 }

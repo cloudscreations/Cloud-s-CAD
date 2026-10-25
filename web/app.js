@@ -1,5 +1,7 @@
 // Cloud's CAD - browser UI. License: GPL v3
 import { fmtLen } from './fmtlen.js';
+import { dwgToDxfText } from './dwg.js';
+import { initSim } from './simulate.js';
 import { readDxf, chain, rev, simplifySplines, convertSegments, parseTap, tapToDxf, flatten, DEFAULT_POST, TO_IN } from './core.js';
 import * as S from './sketch.js';
 import { ask } from './ask.js';
@@ -17,6 +19,10 @@ import { initMachineSettings } from './machine-settings.js';
 import * as SH from './shapetools.js';
 import * as NEST from './nest.js';
 import { initWorkspaces } from './workspaces.js';
+import { initSolids } from './solids-ui.js';
+import { initSheet } from './sheet-ui.js';
+import { initCmdSearch } from './cmdsearch.js';
+import { initPhysics } from './physics-ui.js';
 
 const $ = (id) => document.getElementById(id);
 const state = {
@@ -26,6 +32,7 @@ const state = {
   report: null, name: 'drawing', model: null, rawModel: null, result: null,
   slots: { front: { src: 'none' }, side: { src: 'none' }, top: { src: 'none' } },
 };
+let sheetUI = null, physUI = null, solidsUI = null, solidFlag = false;
 let draw = null, viewer = null, printUI = null, library = null, workspaces = null;
 const fmt = (v, d = 4) => { const s = (+v).toFixed(d); return s.includes('.') ? s.replace(/0+$/, '').replace(/\.$/, '') : s; };
 const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
@@ -48,8 +55,10 @@ function browserDownload(name, data, type) {
 }
 
 // ---------------------------------------------------------------- tabs
+const TAB_HINTS = { draw: 'Draw a profile or open a DWG/DXF file, then check it is one closed outline.', d3: 'Look at the 3D model: turn it, slice it, or take a profile from it.', sheet: 'Bend a flat sheet: draw the side view, get the flat pattern to cut.', phys: 'Drop it, slide it, tilt the floor: see if a part tips or slides.', model: 'Build a 3D shape from your 2D profile (extrude, revolve, sweep).', machine: 'Turn the drawing into G-code (.tap), preview the cut, and send it to the machine.', print: 'Slice a 3D model for a 3D printer and send it to the printer.', library: 'Save profiles you use again, and insert them into a drawing.' };
 function setTab(t) {
-  state.tab = t;
+  state.tab = t; syncEmpty();
+  const th = $('tabHint'); if (th) th.textContent = TAB_HINTS[t] || '';
   document.body.dataset.tab = t;
   document.querySelectorAll('.tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === t));
   if (t === 'draw') { viewer && viewer.stop(); draw.render(); }
@@ -57,6 +66,8 @@ function setTab(t) {
   if (t === 'machine') { viewer && viewer.stop(); updateMachine(); }
   if (t === 'print') { viewer && viewer.stop(); printUI && printUI.refresh(); }
   if (t === 'model') { viewer && viewer.stop(); ensureModeler(); }
+  if (t === 'sheet' && sheetUI) { viewer && viewer.stop(); sheetUI.enter(); } else if (sheetUI) sheetUI.leave();
+  if (t === 'phys' && physUI) { viewer && viewer.stop(); physUI.enter(); } else if (physUI) physUI.leave();
   if (t !== 'model' && modeler) modeler.stop();
   if (t === 'library') { viewer && viewer.stop(); library && library.refresh(); }
 }
@@ -103,7 +114,10 @@ function autosave() {
     if (Date.now() - lastSnap > 120000) snapshot('auto');
   }, 400);
 }
+let hintOff = false; try { hintOff = localStorage.getItem('cc_hint_off') === '1'; } catch (e) { /* ok */ }
+function syncEmpty() { const e = $('emptyHint'); if (e) e.hidden = !!(hintOff || state.doc.ents.length || state.bg || state.tab !== 'draw'); }
 function onChange(selOnly) {
+  syncEmpty();
   if (!selOnly) autosave();
   if (workspaces) workspaces.refreshLabel();
   const ents = state.doc.ents;
@@ -111,6 +125,16 @@ function onChange(selOnly) {
     const tolDoc = 0.002 / TO_IN[state.units];
     state.report = S.profileReport(ents, tolDoc * 1.5);
     const r = state.report;
+    const sb = $('sumBox');
+    if (sb) {
+      const bb = ents.length ? S.bbox(ents) : null;
+      sb.hidden = !bb;
+      if (bb) {
+        const ok = r.paths === 1 && !r.open.length, loose = r.open.length / 2;
+        sb.innerHTML = `<b>${fmt(bb.w, 3)} \u00d7 ${fmt(bb.h, 3)} ${esc(state.units)}</b> &middot; ${ents.length} object${ents.length === 1 ? '' : 's'}<br>` +
+          (ok ? '<span class="ok">\u2713 One closed outline: ready to cut</span>' : loose ? `<span class="bad">${loose} open piece${loose === 1 ? '' : 's'}: red circles show the gaps to close</span>` : `<span class="ok">\u2713 ${r.closed} closed outline${r.closed === 1 ? '' : 's'}</span>`);
+      }
+    }
     $('report').innerHTML = !ents.length ? '' :
       r.paths === 1 && !r.open.length ? '<span class="pill">One closed outline</span>' :
       `${r.closed} closed outline${r.closed === 1 ? '' : 's'}, ${r.open.length / 2} open piece${r.open.length === 2 ? '' : 's'}${r.open.length ? ' (red circles show the loose ends)' : ''}.`;
@@ -174,13 +198,24 @@ function entsFromDxfText(text) {
   const segs = chains.flat();
   return { ents: S.fromSegments(segs), units: u, warnings: r.warnings.slice().concat(r.units ? [] : ['This DXF has no units saved. Assuming inches. Change Units in the right panel if the size looks wrong.']) };
 }
-function toast(msg) {
+let bannerT = 0;
+function banner(msg, kind) {
+  const b = $('banner'); if (!b || !msg) return;
+  $('bannerTxt').textContent = msg; b.className = kind; b.hidden = false;
+  clearTimeout(bannerT);
+  if (kind !== 'err') bannerT = setTimeout(() => { b.hidden = true; }, 7000);
+}
+const ERR_RE = /^(Could not|Couldn't|Nothing|There is no|The profile is|Even turned|One piece|Choose |Select |Draw |Trace failed|Mirror and|\d+ pieces? need|The tether|Skipped|No |Not )/i;
+function toast(msg, kind) {
   const h = $('hint');
   if (h) h.textContent = msg;
   const m = $('messages');
   if (state.tab === 'machine' && m) m.insertAdjacentHTML('afterbegin', `<div class="msg info">${esc(msg)}</div>`);
   state.lastToast = msg;
+  banner(msg, kind || (ERR_RE.test(msg) ? 'err' : 'info'));
 }
+window.__banner = banner;
+const toastErr = (m) => toast(m, 'err');
 function addToDrawing(ents, replace) {
   if (replace) state.startPt = null;
   if (replace) state.doc.set(ents); else state.doc.add(ents);
@@ -188,7 +223,7 @@ function addToDrawing(ents, replace) {
   onChange();
   draw.fit();
 }
-function loadText(name, text) {
+function loadText(name, text, kind) {
   const m = name.match(/^(.*?)(\.[^.]*)?$/);
   state.name = (m && m[1]) || 'drawing';
   const ext = ((m && m[2]) || '').toLowerCase();
@@ -200,6 +235,7 @@ function loadText(name, text) {
     state.doc.set(p.ents.map(({ id, ...e }) => e)); state.dims = Array.isArray(p.dims) ? p.dims : [];
     state.sel.clear(); state.startPt = null;
     setTab('draw'); draw.fit(); onChange();
+    if (p.recipe && solidsUI) solidsUI.setRecipe(p.recipe);
     toast('Project opened. Undo brings your previous drawing back.');
     return;
   }
@@ -217,7 +253,7 @@ function loadText(name, text) {
   setUnitsQuiet(r.units);
   addToDrawing(r.ents, true);
   setTab(state.tab === 'machine' ? 'machine' : 'draw');
-  toast(r.warnings.length ? r.warnings.join(' ') : `DXF opened (${r.ents.length} objects, ${r.units}). Undo brings your previous drawing back.`);
+  toast(r.warnings.length ? r.warnings.join(' ') : `${kind || 'DXF'} opened (${r.ents.length} objects, ${r.units}). Undo brings your previous drawing back.`);
   checkUnits();
 }
 // Does the size look wrong for the unit the file claims? Offer to switch (the numbers stay the same, only the unit changes).
@@ -264,7 +300,7 @@ function setUnitsQuiet(u) {
 }
 function rebindDoc() { draw && draw.setDoc(state.doc); }
 
-async function loadModelBuffer(name, buf) {
+async function parseModelBuf(name, buf) {
   const ext = (name.match(/\.[^.]*$/) || [''])[0].toLowerCase();
   let pos;
   if (ext === '.stl') pos = M.parseSTL(buf);
@@ -274,6 +310,10 @@ async function loadModelBuffer(name, buf) {
     pos = ext === '.glb' || ext === '.gltf' ? await v.parseGLB(buf) : v.parsePLY(buf);
   }
   if (!pos || !pos.length) throw new Error('No triangles found in that file.');
+  return pos;
+}
+async function loadModelBuffer(name, buf) {
+  const pos = await parseModelBuf(name, buf);
   state.rawModel = pos;
   state.model = M.toOrigin(pos);
   $('applyModel').disabled = false;
@@ -309,7 +349,12 @@ function insertText(name, text) {
 function insertFile(f) {
   const rd = new FileReader();
   rd.onerror = () => toast('Could not read that file.');
-  rd.onload = () => { try { insertText(f.name, String(rd.result)); } catch (e) { alert('Could not add that drawing: ' + (e.message || e)); } };
+  if (/\.dwg$/i.test(f.name)) {
+    rd.onload = async () => { try { toast('Reading the DWG file...'); insertText(f.name.replace(/\.dwg$/i, '.dxf'), await dwgToDxfText(rd.result)); } catch (e) { toastErr('Could not add that drawing: ' + (e.message || e)); } };
+    rd.readAsArrayBuffer(f);
+    return;
+  }
+  rd.onload = () => { try { insertText(f.name, String(rd.result)); } catch (e) { toastErr('Could not add that drawing: ' + (e.message || e)); } };
   rd.readAsText(f);
 }
 function openFile(f) {
@@ -317,10 +362,13 @@ function openFile(f) {
   const rd = new FileReader();
   rd.onerror = () => toast('Could not read that file.');
   if (['.stl', '.obj', '.glb', '.ply'].includes(ext)) {
-    rd.onload = () => loadModelBuffer(f.name, rd.result).catch((e) => alert('Could not open model: ' + e.message));
+    rd.onload = () => loadModelBuffer(f.name, rd.result).catch((e) => toastErr('Could not open model: ' + e.message));
+    rd.readAsArrayBuffer(f);
+  } else if (ext === '.dwg') {
+    rd.onload = async () => { try { toast('Reading the DWG file...'); loadText(f.name.replace(/\.dwg$/i, '.dxf'), await dwgToDxfText(rd.result), 'DWG'); } catch (e) { toastErr('Could not open file: ' + (e.message || e)); } };
     rd.readAsArrayBuffer(f);
   } else {
-    rd.onload = () => { try { loadText(f.name, String(rd.result)); } catch (e) { alert('Could not open file: ' + (e.message || e)); } };
+    rd.onload = () => { try { loadText(f.name, String(rd.result)); } catch (e) { toastErr('Could not open file: ' + (e.message || e)); } };
     rd.readAsText(f);
   }
 }
@@ -372,7 +420,10 @@ function drawSvg(segs, { mode = 'cut', marks = [] } = {}) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${(x0 - pad).toFixed(4)} ${(-(y1 + pad)).toFixed(4)} ${(w + 2 * pad).toFixed(4)} ${(h + 2 * pad).toFixed(4)}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Toolpath preview">${body}${arrows}${dots}</svg>`;
 }
 function pathLength(segs) { let L = 0; for (const s of segs) { const p = flatten(s, 2); for (let i = 1; i < p.length; i++) L += Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); } return L; }
-function showMachine(msgs, stats, svg, code) {
+let sim = null;
+function showMachine(msgs, stats, svg, code, tap) {
+  if (!sim && $('sim')) sim = initSim($('sim'), () => state.units);
+  if (sim) { try { sim.load(tap || ''); } catch (e) { $('sim').hidden = true; } }
   $('messages').innerHTML = msgs.map((m) => `<div class="msg ${m.kind}">${esc(m.text)}</div>`).join('');
   $('stats').innerHTML = stats.map((s) => `<div><span>${esc(s[0])}</span><b>${esc(s[1])}</b></div>`).join('');
   $('preview').innerHTML = svg || '<p class="hint">Draw something (or open a DXF) and the cut path appears here.</p>';
@@ -400,7 +451,7 @@ function updateMachine() {
         ['Paths / moves', `${s.paths} / ${s.moves} (${s.arcs} arcs)`],
         ['Cut length', `${pathLength(parsed.segs).toFixed(2)} in`],
         ['Wire must start at', `profile point ${s.start[0].toFixed(3)}, ${s.start[1].toFixed(3)}`],
-      ], drawSvg(parsed.segs, { marks: [{ p: [0, 0], color: '#2a9d8f' }, { p: parsed.end, color: '#e76f51' }] }), res.tap.replace(/\r/g, ''));
+      ], drawSvg(parsed.segs, { marks: [{ p: [0, 0], color: '#2a9d8f' }, { p: parsed.end, color: '#e76f51' }] }), res.tap.replace(/\r/g, ''), res.tap);
       $('dlTap').disabled = $('copy').disabled = false;
     } else {
       const marks = (res.gaps || []).flatMap((g) => [{ p: g.p, color: '#d62828' }, { p: g.q, color: '#d62828' }]);
@@ -414,6 +465,7 @@ function updateMachine() {
 // ---------------------------------------------------------------- 3D tab
 function setModel(pos) {
   state.model = pos;
+  if (!solidFlag && solidsUI) solidsUI.modelChanged(true);
   if (viewer) { viewer.setMesh(pos); viewer.frame(); }
   else ensureViewer();
   updateModelInfo();
@@ -585,7 +637,7 @@ async function traceNow() {
 
 // ---------------------------------------------------------------- project save
 function saveProject() {
-  const data = JSON.stringify({ app: "Cloud's CAD", version: 1, units: state.units, ents: state.doc.ents, dims: state.dims || [] });
+  const data = JSON.stringify({ app: "Cloud's CAD", version: 1, units: state.units, ents: state.doc.ents, dims: state.dims || [], recipe: solidsUI ? solidsUI.getRecipe() : null });
   download(state.name + '.cloudcad', data, 'application/json');
 }
 
@@ -722,16 +774,41 @@ function init() {
     const rp = S.profileReport(r.ents, 0.003 / TO_IN[state.units]);
     toast(rp.paths === 1 && !rp.open.length ? 'Mirrored and joined: one closed outline.' : `Mirrored and joined. ${rp.closed} closed outline(s), ${rp.open.length / 2} open piece(s) left. Check the red circles, or try the other edge.`);
   });
-  $('nestGo').addEventListener('click', () => {
+  // Works out the nest from the current settings. Returns { error } or { r, turned, pairs, rect } without changing the drawing.
+  function computeNest() {
     const k = 1 / TO_IN[state.units], ids = state.sel.size ? [...state.sel] : state.doc.ents.map((e) => e.id);
     const pick = state.doc.ents.filter((e) => ids.includes(e.id));
-    const outs = NEST.outlinesOf(pick, 0.003 * k);
-    const r = NEST.nestRow(outs, { W: num('nW'), H: num('nH'), gap: num('nGap'), margin: num('nMargin'), tetherW: num('nTW'), tetherPct: num('nTP'), count: Math.round(num('nCount')) || 0, leads: $('nLeads').value, alternate: $('nAlt').checked });
-    if (r.error) { toast(r.error); return; }
+    let outs = NEST.outlinesOf(pick, 0.003 * k), turned = 0;
+    if (!outs.length) return { error: 'There is no closed outline to nest. Draw or select a closed profile first (red circles mark gaps that need closing).' };
+    if ($('nPair').checked) { const m = NEST.mirrorOutlines(outs); outs = outs.flatMap((o, i) => [o, m[i]]); }
+    if ($('nFit').checked) {
+      const f = NEST.rotateToFit(outs, num('nH'));
+      if (f.fail) return { error: `Even turned to its flattest angle the profile is ${f.h.toFixed(3)} tall, and the block is only ${num('nH')} tall. Use a taller block.` };
+      outs = f.outlines; turned = f.deg;
+    }
+    const r = NEST.nestRow(outs, { W: num('nW'), H: num('nH'), gap: num('nGap'), margin: num('nMargin'), tetherW: num('nTW'), tetherPct: num('nTP'), count: Math.round(num('nCount')) || 0, leads: $('nLeads').value, alternate: $('nAlt').checked, even: $('nPair').checked });
+    if (r.error) return { error: r.error };
+    const dx = $('nSide').value === 'left' ? -num('nW') : 0;
+    if (dx) r.ents = r.ents.map((e) => { const o = { ...e }; for (const q of ['a', 'b', 'c']) if (e[q]) o[q] = [e[q][0] + dx, e[q][1]]; return o; });
+    return { r, turned, pairs: $('nPair').checked, rect: [dx, 0, dx + num('nW'), num('nH')], k };
+  }
+  function nestPreview() {
+    if (!$('nPrev').checked) { if (state.preview) { state.preview = null; draw.render(); } return; }
+    const c = computeNest();
+    state.preview = c.error ? { ents: [], rect: [$('nSide').value === 'left' ? -num('nW') : 0, 0, $('nSide').value === 'left' ? 0 : num('nW'), num('nH')] } : { ents: c.r.ents, rect: c.rect };
+    draw.render();
+    if (c.error) banner(c.error, 'err');
+  }
+  ['nW', 'nH', 'nGap', 'nMargin', 'nTW', 'nTP', 'nCount', 'nLeads', 'nAlt', 'nFit', 'nPair', 'nSide', 'nPrev'].forEach((id) => { $(id).addEventListener('input', nestPreview); $(id).addEventListener('change', nestPreview); });
+  $('nestGo').addEventListener('click', () => {
+    const c = computeNest();
+    if (c.error) { toast(c.error, 'err'); return; }
+    const { r, turned, k } = c;
+    state.preview = null; $('nPrev').checked = false;
     snapshot('before nesting');
     state.doc.set(r.ents); state.sel.clear(); onChange(); draw.fit();
     const rp = S.profileReport(r.ents, 0.003 * k);
-    toast(`Nested ${r.count} piece${r.count === 1 ? '' : 's'} in ${num('nW')} x ${num('nH')}. ${rp.closed ? 'One closed loop.' : `${rp.paths} cut path${rp.paths === 1 ? '' : 's'}.`} Undo brings your profile back.`);
+    toast(`Nested ${r.count} piece${r.count === 1 ? '' : 's'} in ${num('nW')} x ${num('nH')}. ${rp.closed ? 'One closed loop.' : `${rp.paths} cut path${rp.paths === 1 ? '' : 's'}.`}${turned ? ` The profile was turned ${turned} degrees to fit the block height.` : ''} Undo brings your profile back.`);
   });
   $('smGo').addEventListener('click', () => {
     const k = 1 / TO_IN[state.units], st = Math.max(1, Math.min(10, parseFloat($('smStrength').value) || 3));
@@ -806,6 +883,7 @@ function init() {
     if (!pos.length) { $('exMsg').textContent = 'Thickness must be bigger than zero.'; return; }
     state.rawModel = null;
     setModel(pos);
+    solidsUI && solidsUI.make('extrude');
     printUI && printUI.setUnits(state.units);
     $('exMsg').textContent = `Extruded ${loops.length} outline(s).${open ? ` ${open} open piece(s) were skipped.` : ''}`;
   });
@@ -867,6 +945,22 @@ function init() {
     window.addEventListener('resize', () => draw && draw.render());
   }
   printUI = initPrint({ $, state, toast, download });
+  { const mm = $('moreMenu'); if (mm) { mm.addEventListener('click', (e) => { if (e.target.closest('.moreList button')) setTimeout(() => (mm.open = false), 0); }); document.addEventListener('click', (e) => { if (mm.open && !mm.contains(e.target)) mm.open = false; }); } }
+  const cmdSearch = initCmdSearch(); if ($('cmdBtn')) $('cmdBtn').addEventListener('click', () => cmdSearch.open());
+  const vf = () => import('./view3d.js');
+  sheetUI = initSheet({ $, state, toast, fmt, getViewerFactory: vf, mmPerUnit: () => TO_IN[state.units] * 25.4,
+    getPaths: () => { const tol = 0.002 / TO_IN[state.units]; return M.openChains(state.doc.ents, tol, tol * 5); },
+    setModel: (p) => { setModel(M.toOrigin(p)); setTab('d3'); },
+    addEnts: (e, u, label) => addEntsFrom(e, u, label) });
+  physUI = initPhysics({ $, state, toast, getViewerFactory: vf, mmPerUnit: () => TO_IN[state.units] * 25.4 });
+  solidsUI = initSolids({
+    $, state, toast, fmt, getViewer: () => viewer,
+    setModel: (p) => { solidFlag = true; try { setModel(p); } finally { solidFlag = false; } },
+    getLoops: () => { if ($('exSel') && $('exSel').checked && state.sel.size) { const tol = 0.002 / TO_IN[state.units]; return M.loopsFromEnts(state.doc.ents.filter((e) => state.sel.has(e.id)), tol, tol * 5).loops; } return drawingLoops().loops; },
+    getPaths: () => { const tol = 0.002 / TO_IN[state.units]; return M.openChains(state.doc.ents, tol, tol * 5); },
+    mmPerUnit: () => TO_IN[state.units] * 25.4,
+    openModelFile: (f) => f.arrayBuffer().then((b) => parseModelBuf(f.name, b)).then((p) => M.toOrigin(p)),
+  });
   const help = initHelp({ setTab, setTool: (t) => draw.setTool(t) });
   try {
     const raw = localStorage.getItem('cloudcad-autosave');
@@ -888,6 +982,12 @@ function init() {
   if (!welcomed && !state.restored) help.showWelcome();
   if (state.restored) toast(`Welcome back: your last drawing (${state.restored} objects) was restored. Use Clear drawing under Copies > Clean up to start fresh.`);
   window.addEventListener('beforeunload', () => { try { localStorage.setItem('cloudcad-autosave', JSON.stringify({ units: state.units, name: state.name, startPt: state.startPt || null, ents: state.doc.ents, dims: state.dims || [], others: workspaces ? workspaces.exportOthers() : [] })); } catch (e) { /* ignore */ } });
+  $('emptyX').addEventListener('click', () => { hintOff = true; try { localStorage.setItem('cc_hint_off', '1'); } catch (e) { /* ok */ } syncEmpty(); });
+  $('topUndo').addEventListener('click', () => $('undo').click());
+  $('topRedo').addEventListener('click', () => $('redo').click());
+  syncEmpty(); if ($('tabHint')) $('tabHint').textContent = TAB_HINTS.draw;
+  $('bannerX').addEventListener('click', () => { $('banner').hidden = true; });
+  if (window.cloudDesktop && window.cloudDesktop.onOpenFile) window.cloudDesktop.onOpenFile((name, bytes) => { try { openFile(new File([bytes], name)); } catch (e) { toast('Could not open ' + name + ': ' + (e.message || e)); } });
   window.__cloud = { get workspaces() { return workspaces; }, printUI, help, bgSync, useBg, state, draw, loadText, setTab, updateMachine, onChange, carveNow, setModel, M, S, traceNow };
 }
 document.addEventListener('DOMContentLoaded', init);

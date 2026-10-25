@@ -25,6 +25,7 @@ export function initMachineLink({ $, toast, getTap, getName, fallbackDownload })
     else if (handle) { dir = handle.name; files = await listBrowser(); }
     $('mcFolder').innerHTML = dir ? `Machine folder: <b>${esc(dir)}</b>` : (canPick ? 'No machine folder chosen yet. Press Choose folder and pick the one your DNC program watches.' : 'This browser cannot write to a folder, so Send will download the file. Use the desktop app, or Chrome / Edge, to send straight to the machine.');
     $('mcFiles').innerHTML = dir ? (files.length ? `In the folder now (${files.length}): ` + files.slice(0, 12).map((f) => esc(f.name)).join(', ') + (files.length > 12 ? ', ...' : '') : 'No .tap files in the folder yet.') : '';
+    if ($('mcSetup') && !dir) $('mcSetup').open = true;
     $('mcOpen').hidden = !D || !dir;
     $('mcPick').hidden = !canPick;
   }
@@ -57,5 +58,58 @@ export function initMachineLink({ $, toast, getTap, getName, fallbackDownload })
   $('mcPick').addEventListener('click', pick);
   $('mcOpen').addEventListener('click', () => D && D.open());
   hGet().then(async (h) => { if (h && !D) handle = h; await refresh(); });
+  // ---- connection test (desktop app only) ----
+  const P = window.cloudDesktop && window.cloudDesktop.machine && window.cloudDesktop.machine.probe;
+  const mtGo = $('mtGo');
+  if (mtGo) {
+    if (!P) { mtGo.disabled = true; mtGo.title = 'Needs the desktop app'; $('mtOut').textContent = 'This test needs the desktop app. A web page cannot open network connections.'; }
+    mtGo.addEventListener('click', async () => {
+      if (!P) return;
+      const out = $('mtOut'); mtGo.disabled = true; out.textContent = 'Testing... this takes up to 20 seconds.';
+      try {
+        const ports = ($('mtPorts').value.match(/\d+/g) || []).map(Number); if ($('mt99').checked && !ports.includes(99)) ports.push(99);
+        if (!ports.length) { out.textContent = 'Type at least one door number, like 23, 29.'; return; }
+        const r = await P($('mtIp').value, ports);
+        if (r.error) { out.textContent = r.error; return; }
+        const lines = [r.ping ? `The machine at ${r.addr} answers a ping. Good: the cable and addresses are right.` : `No answer to a ping from ${r.addr}. Check the cable, the machine is on, this computer's address (192.168.50.1) and that the old program is closed.`];
+        const open = r.results.filter((x) => x.open);
+        const showHello = (h) => { if (!h) return 'said nothing by itself'; const b = h.match(/../g).map((x) => parseInt(x, 16)); return 'said (hex) ' + h.replace(/(..)/g, '$1 ').trim() + ' | text: ' + b.map((c) => (c >= 32 && c < 127 ? String.fromCharCode(c) : '.')).join(''); };
+        for (const x of r.results) lines.push(`Door ${x.port}: ${x.open ? 'OPEN, ' + showHello(x.hello) : 'closed (' + x.why + ')'}`);
+        lines.push(open.length ? `Open doors: ${open.map((x) => x.port).join(', ')}. Write these down or send them to me.` : (r.ping ? 'It answers but none of these doors opened. Is the old program still connected? The machine takes one connection at a time.' : ''));
+        out.innerHTML = lines.filter(Boolean).map(esc).join('<br>');
+      } catch (e) { out.textContent = 'The test could not run: ' + (e && e.message ? e.message : e); }
+      finally { mtGo.disabled = false; }
+    });
+  }
+
+  // ---- listen-only recorder (desktop app only) ----
+  const L = window.cloudDesktop && window.cloudDesktop.machine && window.cloudDesktop.machine.listen;
+  const mlGo = $('mlGo'), mlStop = $('mlStop');
+  if (mlGo) {
+    if (!L) { mlGo.disabled = true; $('mlOut').textContent = 'Needs the desktop app.'; }
+    let tick = null;
+    mlStop.addEventListener('click', () => { const S = window.cloudDesktop.machine.listenStop; if (S) S(); });
+    mlGo.addEventListener('click', async () => {
+      if (!L) return;
+      const out = $('mlOut');
+      const ports = ($('mtPorts').value.match(/\d+/g) || []).map(Number);
+      const secs = Number($('mlSecs').value) || 180;
+      mlGo.disabled = true; mlStop.disabled = false;
+      let left = Math.max(5, Math.min(600, Math.round(secs)));
+      out.textContent = `Listening... ${left}s left. Go to the pedestal now.`;
+      tick = setInterval(() => { left--; if (left >= 0) out.textContent = `Listening... ${left}s left. Go to the pedestal now.`; }, 1000);
+      try {
+        const r = await L($('mtIp').value, ports, secs);
+        if (r.error) { out.textContent = r.error; return; }
+        const got = r.events.filter((e) => e.kind === 'received');
+        const bytes = got.reduce((n, e) => n + e.bytes, 0);
+        const head = got.length ? `The machine sent ${bytes} bytes in ${got.length} pieces.` : 'The machine sent nothing while listening.';
+        const where = r.file ? `A copy of the log was saved in your Documents folder: ${r.file.split(/[\\/]/).pop()}. Send me that file.` : 'Could not save the log file. Copy the text below instead.';
+        out.innerHTML = esc(head + ' ' + where) + '<pre style="white-space:pre-wrap;max-height:260px;overflow:auto;margin:6px 0 0">' + esc(r.log) + '</pre>';
+      } catch (e) { out.textContent = 'Could not listen: ' + (e && e.message ? e.message : e); }
+      finally { clearInterval(tick); mlGo.disabled = false; mlStop.disabled = true; }
+    });
+  }
+
   return { refresh, send };
 }
