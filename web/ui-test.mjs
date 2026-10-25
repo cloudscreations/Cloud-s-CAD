@@ -323,7 +323,7 @@ ok('machine preview has direction arrows', $('preview').querySelectorAll('polygo
   fresh([{ t: 'L', a: [0, 0], b: [1, 0] }, { t: 'L', a: [1.004, 0], b: [2, 0] }, { t: 'L', a: [2, 0], b: [2, 1] }]);
   $('joinBtn').click();
   ok('Join closes the gap and merges the straight pieces', ents().length === 2, String(ents().length));
-  ok('sidebar is grouped LibreCAD-style (6 groups)', w.document.querySelectorAll('#tools details.tg').length === 6);
+  ok('sidebar is grouped LibreCAD-style (7 groups: Select, Foam cutting, Lines, Shapes, Modify, Info, Undo)', w.document.querySelectorAll('#tools details.tg').length === 7);
   ok('every tool has a button', ['select', 'line', 'curve', 'rect', 'circle', 'arc', 'move', 'copy', 'rotate', 'scale', 'mirror', 'stretch', 'trim', 'extend', 'break', 'offset', 'fillet', 'chamfer', 'measure', 'start'].every((n) => w.document.querySelector(`#tools [data-tool="${n}"]`)));
   C.draw.setTool('select');
 }

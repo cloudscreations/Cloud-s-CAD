@@ -19,7 +19,7 @@ export const TOOL_HINTS = {
   dimAng: 'Angle: click the corner point, then a point on one side, then a point on the other side. The angle stays on the drawing.',
   dimRad: 'Radius: click a circle or an arc. Its radius stays on the drawing.',
   hand: 'Pan: drag to move the view. Pinch with two fingers to zoom (or use two fingers any time).',
-  select: 'Click pieces one by one to add them to the selection (click a selected piece again to take it out). Drag a box to add many. Click empty space or press Esc to clear. Double-click a shape to select all of it. Drag a selected line to move it by itself. Drag the end point of a selected line to move just the end of that line (hold Ctrl to move every line joined there). A selected curve shows round handles: drag to reshape, Ctrl+click on the curve to add a point, Alt+click a handle to remove it.',
+  select: 'Click a piece to select it. Drag a box to select many. Double-click selects the whole shape. Esc clears. (Drag a selected line to move it; Ctrl+click on a curve adds a point.)',
   offset: 'Parallel copy: type the distance in the right panel, click the line, arc or circle, then click the side where the copy should go.',
   measure: 'Measure: click two points. The distance, angle and across/up are shown. Press Esc to clear.',
   start: 'Click the point on the outline where the cut should START. For a closed shape the wire goes all the way around and ends there. For an open path, click near the end you want to start from.',
@@ -68,7 +68,7 @@ export function createDrawView({ svg, state, els, onChange }) {
   const sel = () => state.sel;
   const selIds = () => [...state.sel];
   const ents = () => doc.ents;
-  const say = (m) => { st.msg = m; if (els.hint) els.hint.textContent = m || TOOL_HINTS[st.tool]; };
+  const say = (m) => { st.msg = m; if (els.hint) els.hint.textContent = m || TOOL_HINTS[st.tool]; if (m && /^(Select the objects|Nothing|Select |Could not|Can't|Cannot|No )/.test(m) && window.__banner) window.__banner(m, 'err'); };
 
   // ----- snapping -----
   function snapPoint(raw, anchor) {
@@ -206,7 +206,7 @@ export function createDrawView({ svg, state, els, onChange }) {
   function staticKey(w, h) {
     let selSig = sel().size; for (const id of sel()) selSig = (selSig * 31 + (typeof id === 'number' ? id : 7)) % 1000000007;
     const b = state.bg;
-    return [w, h, v.cx, v.cy, v.s, ver(ents()), selSig, st.pickA, st.tool === 'select', state.snaps.showOpen, state.snaps.showDims, ver(state.report), state.measure ? state.measure.join() : '', state.startPt ? state.startPt.join() : '', b ? `${b.url && b.url.length}|${b.x}|${b.y}|${b.width}|${b.opacity}|${b.visible}` : '', gridLevel(), document.documentElement.dataset.theme, st.curveSel || '', (state.dims || []).length].join('~');
+    return [w, h, v.cx, v.cy, v.s, ver(ents()), selSig, st.pickA, st.tool === 'select', state.snaps.showOpen, state.snaps.showDims, ver(state.report), ver(state.preview), state.measure ? state.measure.join() : '', state.startPt ? state.startPt.join() : '', b ? `${b.url && b.url.length}|${b.x}|${b.y}|${b.width}|${b.opacity}|${b.visible}` : '', gridLevel(), document.documentElement.dataset.theme, st.curveSel || '', (state.dims || []).length].join('~');
   }
   function render() {
     const { w, h } = size();
@@ -293,6 +293,12 @@ export function createDrawView({ svg, state, els, onChange }) {
         label((x0 + x1) / 2, yb + 15, fmtLen(bb.w, state.units), 'middle');
         label(xr + 8, (y0 + y1) / 2, fmtLen(bb.h, state.units), 'start');
       }
+    }
+    if (state.preview) {
+      const pv = state.preview;
+      if (pv.rect) { const [x0, y0, x1, y1] = pv.rect; el('rect', { x: sx(x0), y: sy(y1), width: (x1 - x0) * v.s, height: (y1 - y0) * v.s, class: 'pvblock' }, gBg); }
+      let d = ''; for (const e of pv.ents) d += e.t === 'C' ? '' : entPath(e);
+      el('path', { d, class: 'pvline', fill: 'none' }, gTop);
     }
     if (state.startPt) {
       const X = sx(state.startPt[0]), Y = sy(state.startPt[1]);
@@ -596,7 +602,18 @@ export function createDrawView({ svg, state, els, onChange }) {
         st.pts.push(p);
         if (st.pts.length === 2) {
           const [m1, m2] = st.pts, ids = selIds(); st.pts = [];
-          askKeep('Mirror: what about the original?').then((a) => { if (a) commit(S.mirror(ents(), ids, m1, m2, a === 'keep')); render(); });
+          askKeep('Mirror: what about the original?').then((a) => {
+            if (a) {
+              const before = new Set(ents().map((x) => x.id));
+              commit(S.mirror(ents(), ids, m1, m2, a === 'keep'));
+              if (a === 'keep') {   // select only the new mirrored copy and start Move, so it can be dragged off the original
+                state.sel.clear(); ents().forEach((x) => { if (!before.has(x.id)) state.sel.add(x.id); });
+                onChange(true); setTool('move');
+                say('The mirrored copy is selected and ready to move. Click a start point (any spot), then click where it should go.');
+              }
+            }
+            render();
+          });
         }
         break;
       }
@@ -876,7 +893,7 @@ export function createDrawView({ svg, state, els, onChange }) {
     if (k === 'Enter' && st.tool === 'line') { finishLine(); return; }
     if (k === 'Enter' && st.tool === 'curve') { if (st.pts.length >= 2) finishCurve(false); return; }
     if (k === 'Backspace' && st.tool === 'curve' && st.pts.length) { st.pts.pop(); render(); return; }
-    if (k === 'Delete' || k === 'Backspace') { deleteSelected(); return; }
+    if (k === 'Delete' || k === 'Backspace' || (!ctrl && !e.altKey && (k === 'q' || k === 'Q'))) { deleteSelected(); return; }
     if (k === 'Shift') { st.ortho = true; return; }
     if (/^[0-9.\-<]$/.test(k) && els.num && !ctrl) { els.num.focus(); els.num.value = k; e.preventDefault(); return; }
     const map = { v: 'select', l: 'line', r: 'rect', c: 'circle', a: 'arc', t: 'trim', f: 'fillet', h: 'chamfer', m: 'move', y: 'copy', o: 'rotate', i: 'mirror', k: 'scale', w: 'freehand', x: 'delnode', e: 'extend', b: 'break', g: 'stretch', u: 'curve', s: 'start', d: 'measure', p: 'offset' };

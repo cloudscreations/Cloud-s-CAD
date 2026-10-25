@@ -45,12 +45,23 @@ export function createViewer(container) {
   scene.add(dl);
   let group = new THREE.Group();
   scene.add(group);
-  let bbox = null, grid = null;
+  let bbox = null, grid = null, overlays = [];
+  function setOverlay(list) {
+    for (const o of overlays) { scene.remove(o); o.geometry.dispose(); o.material.dispose(); }
+    overlays = [];
+    for (const { pos, color } of list || []) {
+      if (!pos || !pos.length) continue;
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.computeVertexNormals();
+      const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+      scene.add(m); overlays.push(m);
+    }
+  }
 
   function setBg(dark) { scene.background = new THREE.Color(dark ? 0x0c0f14 : 0xeef1f5); }
   setBg(true);
 
   function setMesh(pos) {
+    setOverlay([]);
     scene.remove(group);
     group.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
     group = new THREE.Group();
@@ -93,5 +104,5 @@ export function createViewer(container) {
   function start() { if (!running) { running = true; resize(); loop(); } }
   function stop() { running = false; }
   window.addEventListener('resize', resize);
-  return { setMesh, frame, start, stop, resize, setBg, camera, controls, THREE };
+  return { scene, setMesh, setOverlay, frame, start, stop, resize, setBg, camera, controls, THREE };
 }
