@@ -1,3 +1,18 @@
+# Cloud's CAD Architecture (current)
+
+The app is a single offline web page (HTML + JavaScript, bundled with esbuild) that is also wrapped in Electron for a double-click Windows/Linux app. No server, no account.
+
+- **2D:** `sketch.js`, `ui-draw.js`, `core.js` (DXF/DWG import, G-code writer, parser), `nest.js`, `shapetools.js`.
+- **Machine output:** `core.js` (.tap), `simulate.js` (Play the cut), `machine-link.js` (send to a watched folder), `machine-settings.js`.
+- **3D:** `mesh.js`, `view3d.js`, `modeler.js` (3D Shapes), `solids.js` + `features.js` + `solids-ui.js` (step history, run in a background worker via `solids-client.js` / `worker-entry.js`), `printcheck.js`.
+- **Sheet metal:** `sheetmetal.js`, `sheet-ui.js`. **Physics:** `physics-ui.js`.
+- **3D printing:** `slicer.js`, `print-ui.js`, `printer.js`, optional Cura engine in the desktop app.
+- **Build:** `web/build.mjs` writes `clouds-cad.html` with the WebAssembly engines embedded. Tests: `npm test` in `web/`.
+
+The text below is the original planning draft and is kept for history.
+
+---
+
 # Cloud's CAD Architecture (draft)
 
 ## Decision 1: Base

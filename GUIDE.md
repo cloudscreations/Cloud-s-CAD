@@ -18,7 +18,7 @@ Plain text with incremental moves (`G91`), a header of `M90`, `G74`, `M11`, then
 See [MACHINE-NOTES.md](MACHINE-NOTES.md): the ExtraTech controller (192.168.50.2), the JobServer folder watch, controller ports found by reading the old software, and how to test the connection from the Machine tab (read-only).
 
 ## 3. 3D
-- **3D tab → Make a solid:** extrude, spin, sweep along an open line, or loft two outlines. Then add steps (round, hollow, screw hole…). Change any number in the list to rebuild. *Undo last change* steps back.
+- **3D Model tab → Make a solid:** extrude, spin, sweep along an open line, or loft two outlines. Then add steps (round, hollow, screw hole…). Change any number in the list to rebuild. *Undo last change* steps back.
 - **Check it for 3D printing:** red = too thin, orange = needs supports. *Repair* seals small gaps. *Lay it the best way* picks the orientation with least support.
 - **Fill the print bed:** copies laid out on your bed size (set in the 3D Print tab).
 - Export STL, or open the 3D Print tab to slice.
@@ -32,3 +32,6 @@ Physics tab → pick *My model / Box / Ball*, tilt the floor, press Play. It tel
 ## Tips
 - Undo/Redo are in the header; **Q** deletes the selection; History brings back earlier versions.
 - Everything stays on your computer.
+
+- Press `/` or Ctrl+K to search for any command by name.
+- In the 3D tab, slow steps run in the background; press **Stop** if one takes too long. Very detailed curved models (over about 8,000 triangles) are refused for rounding/hollowing on purpose.

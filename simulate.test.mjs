@@ -1,0 +1,12 @@
+import { buildPath, pointAt } from './simulate.js';
+let fail = 0; const ok = (n, c, x = '') => { console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? '  ' + x : '')); if (!c) fail++; };
+const tap = ['M90', 'G74', 'G91', 'G01 X1 Y0', 'G01 X0 Y1', 'G02 X-1 Y-1 I-1 J0', 'M02'].join('\r\n');
+const p = buildPath(tap);
+ok('three moves read', p.segs.length === 3, String(p.segs.length));
+ok('moves know their file line', p.segs[0].ln === 3 && p.segs[2].ln === 5);
+ok('total is line + line + quarter circle', Math.abs(p.total - (1 + 1 + Math.PI / 2)) < 0.01, p.total.toFixed(4));
+let q = pointAt(p, 0.5); ok('halfway along first move', Math.abs(q.p[0] - 0.5) < 1e-9 && q.p[1] === 0);
+q = pointAt(p, 1.5); ok('halfway up second move', Math.abs(q.p[0] - 1) < 1e-9 && Math.abs(q.p[1] - 0.5) < 1e-9);
+q = pointAt(p, p.total); ok('ends at the end point (0,0)', Math.abs(q.p[0]) < 1e-9 && Math.abs(q.p[1]) < 1e-9, q.p.join());
+q = pointAt(p, -5); ok('before start clamps', q.p[0] === 0 && q.p[1] === 0);
+console.log(fail ? 'FAILED' : 'ALL PASSED'); process.exit(fail ? 1 : 0);

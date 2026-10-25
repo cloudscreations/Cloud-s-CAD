@@ -1,0 +1,24 @@
+import * as S from './sketch.js';
+import { outlinesOf, nestRow } from './nest.js';
+let fail = 0; const ok = (n, c, x = '') => { console.log((c ? 'PASS ' : 'FAIL ') + n + (c ? '' : ' ' + x)); if (!c) fail++; };
+const L = (a, b, c, d) => ({ t: 'L', a: [a, b], b: [c, d] });
+// profile: 2 wide x 1.5 tall box with a rounded top-right arc corner
+const prof = [L(0,0,2,0), L(2,0,2,1), { t:'A', a:[2,1], b:[1.5,1.5], c:[1.5,1], ccw:true }, L(1.5,1.5,0,1.5), L(0,1.5,0,0)];
+const outs = outlinesOf(prof);
+ok('one closed outline found', outs.length === 1, outs.length);
+const r = nestRow(outs, { W: 12, H: 4, gap: 0.5, margin: 0.5, tetherW: 0.06, tetherPct: 30, leads: 'both' });
+ok('nested without error', !r.error, r.error);
+ok('count fits', r.count === 4, r.count);
+const rep = S.profileReport(r.ents, 0.003);
+ok('everything touches within block', (() => { const b = S.bbox(r.ents); return b.x0 >= -1e-9 && b.x1 <= 12 + 1e-9 && b.y1 <= 4; })());
+ok('two open paths (top and bottom) with leads both', rep.paths === 2 && rep.open.length === 4, JSON.stringify(rep));
+const r1 = nestRow(outs, { W: 12, H: 4, count: 3, leads: 'right', tetherPct: 30 });
+const rep1 = S.profileReport(r1.ents, 0.003);
+ok('one lead = single open path', !r1.error && rep1.paths === 1 && rep1.open.length === 2, JSON.stringify(rep1) + r1.error);
+const r0 = nestRow(outs, { W: 12, H: 4, count: 3, leads: 'none', tetherPct: 30 });
+const rep0 = S.profileReport(r0.ents, 0.003);
+ok('no leads = one closed loop', !r0.error && rep0.paths === 1 && rep0.closed === 1, JSON.stringify(rep0) + r0.error);
+ok('too tall errors', !!nestRow(outs, { W: 12, H: 1 }).error);
+const ra = nestRow(outs, { W: 12, H: 4, alternate: true, tetherPct: 30, leads: 'none', count: 3 });
+ok('alternate works', !ra.error && S.profileReport(ra.ents, 0.003).closed === 1, ra.error);
+process.exit(fail ? 1 : 0);
