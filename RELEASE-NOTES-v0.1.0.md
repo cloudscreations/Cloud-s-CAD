@@ -11,14 +11,12 @@ A free, open-source (GPL v3) CAD/CAM app built for hot-wire foam cutting, with 3
 - 3D Build modeller, 3D viewer, 3D Print slicer (Cura engine bundled in the desktop app).
 
 ## Known limits
-- Windows and Mac builds are unsigned (SmartScreen / Gatekeeper warnings).
-- Tested in a browser and with automated tests; not yet tested on real Windows/Mac/phone installs or on a live cutter.
+- The Windows build is unsigned (SmartScreen warning).
+- Tested in a browser and with automated tests; not yet tested on real Windows/Linux installs or on a live cutter.
 - No live machine control. Controller commands export is a draft.
 - The desktop app does not run on Windows XP.
 
 ## Files
 - `CloudsCAD.exe` Windows portable
-- `CloudsCAD-Mac-arm64.zip`, `CloudsCAD-Mac-x64.zip` Mac
 - `CloudsCAD-Linux.tar.gz` Linux
 - `clouds-cad.html` single file, opens in any browser, works offline
-- `CloudsCAD-mobile.zip` phone/PWA files

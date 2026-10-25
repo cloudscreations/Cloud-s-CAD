@@ -6,7 +6,7 @@ Each phase ships something usable before the next one starts.
 - [x] README, goals, interoperability rules
 - [ ] Choose base: fork FreeCAD vs. standalone app on OpenCASCADE (see ARCHITECTURE.md)
 - [ ] Create GitHub repo, GPL v3 LICENSE, CONTRIBUTING.md, THIRD_PARTY_LICENSES.md
-- [ ] Set up build + CI on Windows, Linux, macOS
+- [ ] Set up build + CI on Windows and Linux
 - [ ] Check every dependency's license for GPL v3 compatibility
 
 ## Phase 1: File compatibility
@@ -45,3 +45,10 @@ Each phase ships something usable before the next one starts.
 - Credit all upstream authors and keep their license notices.
 - Test on real machines before calling a post-processor "supported."
 - Safety first: any code that moves a machine needs limits checks and a clear stop control.
+
+## Next
+- STEP import/export (needs OpenCASCADE, large)
+- True NURBS surfaces
+- Parametric 2D constraints, layers
+- Direct send to the hotwire controller (needs network capture)
+- GRBL / CNC router output

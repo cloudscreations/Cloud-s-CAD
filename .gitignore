@@ -1,0 +1,14 @@
+node_modules/
+dist/
+dist-portable/
+pk/
+*.exe
+*.zip
+*.tar.gz
+/clouds-cad.html
+/mobile/
+desktop/app.html
+desktop/main.bak
+__pycache__/
+*.pyc
+web/shots/
